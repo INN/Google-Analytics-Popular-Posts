@@ -1,0 +1,840 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"padding",
+				"padding-bottom"
+			],
+			[
+				"fon",
+				"font-size"
+			],
+			[
+				"margin",
+				"margin-right"
+			],
+			[
+				"text",
+				"text-decoration"
+			],
+			[
+				"font",
+				"font-size"
+			],
+			[
+				"font-",
+				"font-family"
+			],
+			[
+				"mar",
+				"margin-left"
+			],
+			[
+				"cur",
+				"cursor"
+			],
+			[
+				"margni",
+				"margin-left"
+			],
+			[
+				"border",
+				"border-top"
+			],
+			[
+				"li",
+				"line-height"
+			],
+			[
+				"hrld_shoutou",
+				"hrld_shoutout_links"
+			],
+			[
+				"shoutout",
+				"shoutout_coordinator"
+			],
+			[
+				"ph",
+				"photographer"
+			],
+			[
+				"print",
+				"print_r"
+			],
+			[
+				"php",
+				"php"
+			],
+			[
+				"opac",
+				"opacity"
+			],
+			[
+				"bor",
+				"border"
+			],
+			[
+				"hrld-dar",
+				"hrld-dark-grey"
+			],
+			[
+				"bo",
+				"bottom"
+			],
+			[
+				"t",
+				"top"
+			],
+			[
+				"le",
+				"letter-spacing"
+			],
+			[
+				"hrld-da",
+				"hrld-dark-grey"
+			],
+			[
+				"text-",
+				"text-align"
+			],
+			[
+				"inlin",
+				"inline-block"
+			],
+			[
+				"marg",
+				"margin-left"
+			],
+			[
+				"hrld-",
+				"hrld-blue"
+			],
+			[
+				"back",
+				"background"
+			],
+			[
+				"backg",
+				"background-image"
+			],
+			[
+				"s",
+				"student-logo"
+			],
+			[
+				"student-",
+				"student-choice"
+			],
+			[
+				"padd",
+				"padding"
+			],
+			[
+				"font-s",
+				"font-style"
+			],
+			[
+				"hrld",
+				"hrld-black"
+			],
+			[
+				"margi",
+				"margin-left"
+			],
+			[
+				"margin-",
+				"margin-bottom"
+			],
+			[
+				"fonts",
+				"font-size"
+			],
+			[
+				"hrld-d",
+				"hrld-dark-grey"
+			],
+			[
+				"margn",
+				"margin-top"
+			],
+			[
+				"ma",
+				"margin"
+			],
+			[
+				"pad",
+				"padding"
+			],
+			[
+				"end",
+				"endwhile"
+			],
+			[
+				"paddin",
+				"padding-right"
+			],
+			[
+				"hrld-dark-",
+				"hrld-dark-grey-hover"
+			],
+			[
+				"pa",
+				"padding"
+			],
+			[
+				"wp_en",
+				"wp_enqueue_script"
+			],
+			[
+				"divisi",
+				"division_keywords"
+			],
+			[
+				"divi",
+				"division_keywords"
+			],
+			[
+				"region",
+				"region_keywords"
+			],
+			[
+				"f",
+				"fgetcsv"
+			],
+			[
+				"i",
+				"italic"
+			],
+			[
+				"paddi",
+				"padding-left"
+			],
+			[
+				"tet",
+				"text-align"
+			],
+			[
+				"wid",
+				"width"
+			],
+			[
+				"min_heust",
+				"min_huest2010"
+			],
+			[
+				"min_popes",
+				"min_popest2011"
+			],
+			[
+				"min_o",
+				"min_popest2010"
+			],
+			[
+				"pop",
+				"popestimate2011"
+			],
+			[
+				"co",
+				"color"
+			],
+			[
+				"max-",
+				"max-width"
+			],
+			[
+				"newRoo",
+				"newRootNode"
+			],
+			[
+				"newP",
+				"newPageId"
+			],
+			[
+				"h",
+				"highValParm"
+			],
+			[
+				"ne",
+				"nextRecord"
+			],
+			[
+				"leafNode",
+				"LeafNodeInt"
+			],
+			[
+				"key",
+				"keyArray"
+			],
+			[
+				"pageNo",
+				"pageNoArray"
+			],
+			[
+				"non",
+				"nonLeafPage"
+			],
+			[
+				"read",
+				"readPage"
+			],
+			[
+				"page",
+				"pageNoArray"
+			],
+			[
+				"insert",
+				"insertIntoNonLeaf"
+			],
+			[
+				"root",
+				"rootPageNum"
+			],
+			[
+				"bu",
+				"bufMgr"
+			],
+			[
+				"Root",
+				"rootPageNum"
+			],
+			[
+				"buf",
+				"bufMgr"
+			],
+			[
+				"roo",
+				"rootPageNum"
+			],
+			[
+				"attr",
+				"attrByteOffset"
+			],
+			[
+				"bufMg",
+				"bufMgrIn"
+			],
+			[
+				"relation",
+				"relationName"
+			]
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": "ga-analytics.php",
+			"settings":
+			{
+				"buffer_size": 3084,
+				"line_ending": "Unix"
+			}
+		}
+	],
+	"build_system": "",
+	"command_palette":
+	{
+		"height": 392.0,
+		"selected_items":
+		[
+			[
+				"pac",
+				"Package Control: Install Package"
+			],
+			[
+				"packa",
+				"Package Control: Install Package"
+			],
+			[
+				"pack",
+				"Package Control: Remove Package"
+			],
+			[
+				"Pack",
+				"Package Control: List Packages"
+			],
+			[
+				"install",
+				"Package Control: Install Package"
+			],
+			[
+				"Package",
+				"Package Control: Install Package"
+			]
+		],
+		"width": 449.0
+	},
+	"console":
+	{
+		"height": 139.0,
+		"history":
+		[
+			"import urllib.request,os,hashlib; h = '7183a2d3e96f11eeadd761d777e62404' + 'e330c659d4bb41d3bdf022e94cab3cd0'; pf = 'Package Control.sublime-package'; ipp = sublime.installed_packages_path(); urllib.request.install_opener( urllib.request.build_opener( urllib.request.ProxyHandler()) ); by = urllib.request.urlopen( 'http://sublime.wbond.net/' + pf.replace(' ', '%20')).read(); dh = hashlib.sha256(by).hexdigest(); print('Error validating download (got %s instead of %s), please try manual install' % (dh, h)) if dh != h else open(os.path.join( ipp, pf), 'wb' ).write(by)"
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"expanded_folders":
+	[
+		"/Library/WebServer/Documents/vagrant/wp/wp-content/plugins/ga-analytics"
+	],
+	"file_history":
+	[
+		"/Users/whaynes/Documents/tests/wp-config.php",
+		"/Library/WebServer/Documents/google-analytics/api/examples/service-account.php",
+		"/Library/WebServer/Documents/inn/largo-umbrella/wp-content/themes/youth-today/style.css",
+		"/Library/WebServer/Documents/inn/largo-umbrella/wp-content/plugins/news-quiz/news-quiz.sublime-project",
+		"/Library/WebServer/Documents/inn/largo-umbrella/wp-content/plugins/news-quiz/phpunit.xml",
+		"/Library/WebServer/Documents/inn/largo-umbrella/wp-content/plugins/news-quiz/css/style.css",
+		"/Library/WebServer/Documents/inn/largo-umbrella/wp-content/plugins/news-quiz/tests/test-sample.php",
+		"/Library/WebServer/Documents/vagrant/interactive/voter-ids/css/style.css",
+		"/Library/WebServer/Documents/inn/largo-umbrella/wp-content/plugins/tests/tests.php",
+		"/Users/whaynes/Documents/School/cs559/a3/answers.txt",
+		"/Users/whaynes/Documents/School/cs559/a3/convert.py",
+		"/Library/WebServer/Documents/vagrant/wp/wp-content/themes/exa/inc/ads.php",
+		"/Library/WebServer/Documents/herald/wp/wp-config.php",
+		"/Library/WebServer/Documents/herald/README.md",
+		"/Library/WebServer/Documents/bhrld/wordpress/wp-content/plugins/hrld-setup/hrld-setup.php",
+		"/Users/whaynes/Library/Caches/Cleanup At Startup/Transmit/2051FD8E-46A0-4D2A-8DA7-F255266A434C/wp-config.php",
+		"/Library/WebServer/Documents/wh.com/wp/wp-content/themes/willhaynes/sidebar.php",
+		"/Library/WebServer/Documents/wh.com/wp/wp-content/themes/willhaynes/index.php",
+		"/Library/WebServer/Documents/wh.com/wp/wp-content/themes/willhaynes/page.php",
+		"/Library/WebServer/Documents/wh.com/wp/wp-content/themes/willhaynes/front-page.php",
+		"/Library/WebServer/Documents/wh.com/wp/wp-content/themes/willhaynes/sass/_normalize.scss",
+		"/Library/WebServer/Documents/wh.com/wp/wp-content/themes/willhaynes/work.php",
+		"/Library/WebServer/Documents/wh.com/wp/wp-content/themes/willhaynes/header.php",
+		"/Library/WebServer/Documents/log/so.log",
+		"/Users/whaynes/Desktop/console.log",
+		"/Library/WebServer/Documents/pinhole/ajax/upload.php",
+		"/Library/WebServer/Documents/pinhole/photo-group.php",
+		"/Library/WebServer/Documents/pinhole/index.php",
+		"/Library/WebServer/Documents/scripts/wp-cat.php",
+		"/Library/WebServer/Documents/pinhole/js/main.js",
+		"/Library/WebServer/Documents/pinhole/img.php",
+		"/Library/WebServer/Documents/pinhole/cms/img.class.php",
+		"/Library/WebServer/Documents/pinhole/css/sidebar.scss",
+		"/Library/WebServer/Documents/pinhole/css/style.scss",
+		"/Library/WebServer/Documents/pinhole/js/plugins.js",
+		"/Library/WebServer/Documents/pinhole/js/SimpleAjaxUploader.js",
+		"/Library/WebServer/Documents/pinhole/ajax/uploader.lib.php",
+		"/Users/whaynes/Downloads/html5-boilerplate-4.3 2.0/index.html",
+		"/Library/WebServer/Documents/pinhole/cms/class-table.php",
+		"/Library/WebServer/Documents/pinhole/cms/table.php",
+		"/Library/WebServer/Documents/collegemedia/index.php",
+		"/Library/WebServer/Documents/collegemedia/cm-setup.php",
+		"/Library/WebServer/Documents/collegemedia/collegemedia.sublime-project",
+		"/Library/WebServer/Documents/collegemedia/cm-db.php",
+		"/Library/WebServer/Documents/collegemedia/cm-config.php",
+		"/Library/WebServer/Documents/bhrld/wordpress/wp-content/themes/exa/sass/style.scss",
+		"/Library/WebServer/Documents/bhrld/wordpress/wp-content/plugins/hrld-setup/popup/popup.html",
+		"/Library/WebServer/Documents/bhrld/wordpress/wp-content/plugins/hrld-setup/popup/style/style.css",
+		"/Library/WebServer/Documents/bhrld/wordpress/wp-content/themes/exa/content.php",
+		"/Library/WebServer/Documents/bhrld/terrace/css/main.css",
+		"/Library/WebServer/Documents/bhrld/terrace/index.php",
+		"/Library/WebServer/Documents/bhrld/wordpress/wp-content/themes/exa/page-shoutouts.php",
+		"/Library/WebServer/Documents/map/index.php",
+		"/Library/WebServer/Documents/dirtybird/single.php",
+		"/Library/WebServer/Documents/dirtybird/header.php",
+		"/Users/whaynes/Documents/passwords",
+		"/Users/whaynes/Desktop/Student-Choice-2014/Sheet 1-Table 1.csv",
+		"/Users/whaynes/Library/Caches/Cleanup At Startup/Transmit/BC323638-7F71-4DBF-A769-8227830645D8/wp-config.php",
+		"/Library/WebServer/Documents/Email/email/2014/03/student-choice/index.php",
+		"/Users/whaynes/Sites/bhrld/wordpress/wp-content/themes/exa/sass/_sidebar.scss",
+		"/Library/WebServer/Documents/bhrld/wordpress/wp-content/themes/exa/header-home.php",
+		"/Users/whaynes/Sites/bhrld/wordpress/wp-content/themes/exa/page-student-choice.php",
+		"/Users/whaynes/Sites/bhrld/wordpress/wp-content/themes/exa/student-choice-db.php",
+		"/Library/WebServer/Documents/fold/weather/lineChart.php",
+		"/Library/WebServer/Documents/fold/weather/weather-json.php",
+		"/Library/WebServer/Documents/fold/weather/weather.php",
+		"/Library/WebServer/Documents/fold/weather/update.php",
+		"/Library/WebServer/Documents/fold/weather/weather.db",
+		"/Library/WebServer/Documents/fold/weather/sample.json",
+		"/Library/WebServer/Documents/fold/weather/test.php",
+		"/Library/WebServer/Documents/fold/fold-spring-reg.php",
+		"/Users/whaynes/Sites/bhrld/wordpress/wp-content/themes/exa/sass/_page.scss",
+		"/Users/whaynes/Sites/bhrld/wordpress/wp-content/themes/exa/sass/style.scss",
+		"/Users/whaynes/Sites/bhrld/wordpress/wp-content/themes/exa/sass/_functions.scss",
+		"/Library/WebServer/Documents/bhrld/wordpress/wp-content/themes/exa/sass/_about-page.scss",
+		"/Users/whaynes/Sites/bhrld/wordpress/wp-content/themes/exa/page-staff.php",
+		"/Users/whaynes/Sites/bhrld/wordpress/wp-content/themes/exa/functions.php",
+		"/Users/whaynes/Sites/bhrld/wordpress/wp-content/themes/exa/page-history.php",
+		"/Users/whaynes/Sites/bhrld/wordpress/wp-content/themes/exa/page-get-involved.php",
+		"/Users/whaynes/Sites/bhrld/wordpress/wp-content/themes/exa/page-about.php",
+		"/Users/whaynes/Sites/bhrld/wordpress/wp-content/themes/exa/header.php",
+		"/Users/whaynes/Sites/bhrld/wordpress/wp-content/themes/exa/header-about.php",
+		"/Users/whaynes/Sites/bhrld/wordpress/wp-content/themes/exa/sass/_masthead.scss",
+		"/Library/WebServer/Documents/bhrld/wordpress/wp-content/themes/exa/header-simple.php",
+		"/Library/WebServer/Documents/journalism.wisc.edu/wp-content/themes/cje-duo/cje-duo.sublime-project",
+		"/Users/whaynes/Sites/bhrld/wordpress/wp-content/themes/exa/single.php",
+		"/Users/whaynes/Sites/bhrld/wordpress/wp-content/themes/exa/js/exa.js",
+		"/Users/whaynes/Sites/bhrld/wordpress/wp-content/themes/exa/archive-sports.php",
+		"/Users/whaynes/Sites/bhrld/wordpress/wp-content/themes/exa/taxonomy-sports-beats.php",
+		"/Users/whaynes/Sites/bhrld/wordpress/wp-content/themes/exa/content-audio.php",
+		"/Users/whaynes/Sites/bhrld/wordpress/wp-content/themes/exa/sass/_post.scss",
+		"/Users/whaynes/Sites/bhrld/wordpress/wp-content/themes/exa/footer.php",
+		"/Users/whaynes/Sites/bhrld/wordpress/wp-content/themes/exa/index.php",
+		"/Users/whaynes/Sites/bhrld/wordpress/wp-content/themes/exa/sass/_fonts.scss",
+		"/Users/whaynes/Sites/bhrld/wordpress/wp-content/themes/exa/sass/_homepage.scss",
+		"/Users/whaynes/Desktop/todo.txt",
+		"/Library/WebServer/Documents/bhrld/wordpress/wp-content/plugins/hrld-setup/permissions.txt",
+		"/Library/WebServer/Documents/bhrld/wordpress/wp-content/themes/exa/exa.sublime-project",
+		"/Users/whaynes/Library/Caches/Cleanup At Startup/Transmit/F360EF70-C9B9-42CE-9B0D-76442081CA71/test-20.csx",
+		"/Users/whaynes/Documents/School/Fall2013/CS536/cs 536 project 2/csx.jlex",
+		"/Users/whaynes/Documents/School/Fall2013/CS536/cs 536 project 5/build.xml",
+		"/Users/whaynes/Documents/School/Fall2013/CS536/cs 536 project 5/test.csx",
+		"/Users/whaynes/Documents/School/Fall2013/CS536/cs 536 project 5/test.lite",
+		"/Users/whaynes/Documents/School/Fall2013/CS536/cs 536 project 4/test1.lite",
+		"/Users/whaynes/Documents/School/Fall2013/CS536/cs 536 project 4/test.csx",
+		"/Users/whaynes/Documents/School/Fall2013/CS536/cs 536 project 5/src/CodeGenerating.java",
+		"/Users/whaynes/Downloads/cs 536 project 5/test.j",
+		"/Users/whaynes/Downloads/cs 536 project 5/test.lite",
+		"/Users/whaynes/Downloads/cs 536 project 5/build.properties",
+		"/Users/whaynes/Library/Caches/Cleanup At Startup/Transmit/CAE578AA-8E66-4883-9DD7-C34C7A86831A/test.j",
+		"/Users/whaynes/Documents/School/Fall2013/CS536/cs 536 project 5/jasmin/README",
+		"/Users/whaynes/Documents/School/Fall2013/CS536/cs 536 project 5/jasmin/jasmin",
+		"/Users/whaynes/Documents/School/Fall2013/CS536/cs 536 project 5/test.j",
+		"/Users/whaynes/Library/Caches/Cleanup At Startup/Transmit/2E266219-91E1-4C8C-A741-498098884D3D/delete.php",
+		"/Users/whaynes/Library/Caches/Cleanup At Startup/Transmit/30E15C49-183F-4E69-B8C5-4ABA0A074CAC/load.php",
+		"/Users/whaynes/Library/Caches/Cleanup At Startup/Transmit/19494496-3AE5-4119-92A5-605B20F4E698/index.php",
+		"/Library/WebServer/Documents/test/index.php",
+		"/Users/whaynes/Library/Caches/Cleanup At Startup/Transmit/FF11E4A1-44AA-40BC-9F4E-4DB4C4106A70/index.php",
+		"/Library/WebServer/Documents/cs564/import.sql",
+		"/Library/WebServer/Documents/cs564/data.csv",
+		"/Library/WebServer/Documents/cs564/index.php",
+		"/Library/WebServer/Documents/bhrld/get-involved/style.css",
+		"/Users/whaynes/Sites/bhrld/wordpress/wp-content/themes/exa/sass/_stream.scss",
+		"/Users/whaynes/Sites/bhrld/wordpress/wp-content/themes/exa/content.php",
+		"/Users/whaynes/Sites/bhrld/wordpress/wp-content/themes/exa/content-summary-instream.php",
+		"/Users/whaynes/Sites/bhrld/wordpress/wp-content/themes/exa/sass/_normalize.scss",
+		"/Users/whaynes/Sites/bhrld/wordpress/wp-content/themes/exa/content-summary-featured.php",
+		"/Library/WebServer/Documents/metagrab/meta.php"
+	],
+	"find":
+	{
+		"height": 26.0
+	},
+	"find_in_files":
+	{
+		"height": 93.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"“",
+			"”",
+			"nums",
+			"dfp",
+			">",
+			"do_action",
+			"apply_filter",
+			"enqueue",
+			"enqueue_style",
+			"wh",
+			"side",
+			"\"",
+			"so_page_enqueue_scripts",
+			"enqueu",
+			"echo",
+			"content",
+			"shoutout_coordinator",
+			"root@",
+			"wrapper",
+			"wrappe.",
+			"wrapper",
+			"style",
+			"debug",
+			"this._opts.data",
+			"this.data",
+			"this->data",
+			"data",
+			"fileupload",
+			"upload",
+			"height",
+			"entry-post-featured",
+			"$pos",
+			"pos",
+			"form",
+			"url",
+			"’",
+			"…",
+			"’",
+			"it's",
+			"”",
+			"“",
+			",,,",
+			"student-choice",
+			"quiz",
+			"form",
+			"copyright",
+			"background-size: auto;'",
+			"background-size: auto;",
+			"seed",
+			"team-span-container",
+			"team-filter",
+			"filter",
+			"team-filter",
+			"team-choice-list",
+			"team-choice-list ",
+			"lte",
+			"if",
+			"student-choice-content",
+			"badger",
+			"dbstr",
+			"$json",
+			"page-container-content",
+			"primary",
+			"page-container-content",
+			"editor",
+			"importance",
+			"color",
+			"vt_",
+			"inner-header",
+			"twitter",
+			"caption",
+			"fixed",
+			"shortcode",
+			"caption",
+			"thumbnail",
+			"slider-related",
+			"&:after",
+			"ad-leaderboard",
+			"top:",
+			"lite",
+			"lite.cup",
+			"csx.jlex",
+			"lite.jlex",
+			"csx.cup",
+			"lite.cup",
+			"swipe",
+			"200px",
+			"/nov/",
+			"scripts",
+			"template",
+			"register_sec",
+			"get_beats",
+			"content",
+			"pt sans",
+			"@param",
+			"http://localhost/email/email/2013/nov",
+			"2013/sept/",
+			",,,,,,",
+			"Real \"Number\",",
+			"String",
+			"Number",
+			"Primary Key",
+			"Foreign Key",
+			"\" \"",
+			"Real \"Number\"",
+			"String",
+			"Number",
+			"Real \"Number\",",
+			"String",
+			"Number",
+			"memberDeclsNode",
+			"methodDeclsNode",
+			"optionalSemi",
+			"optionalsemi",
+			"optionalSemi",
+			"class null",
+			"Null",
+			"exprNode.",
+			"elsePart",
+			"methodDeclsNode",
+			"print",
+			"printlist",
+			"print",
+			"id.returnVar()",
+			"i.returnVar()",
+			"identNode",
+			"i.returnVar()",
+			"id.returnVar()"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+			"\"",
+			"lengths",
+			"→",
+			"wjh",
+			"'",
+			"coordinate_shoutouts",
+			"'",
+			"...",
+			"'",
+			"\"",
+			"",
+			"march-madness",
+			"$temp",
+			"hrld_",
+			"hrld",
+			"inner-masthead",
+			"csx.cup",
+			"csx.jlex",
+			"lite.cup",
+			"csx.cup",
+			"150px",
+			"/dec/",
+			"http://badgerherald.com/email/2013/nov",
+			"2013/nov/",
+			"\"Real Number\",",
+			"\"String\",",
+			"\"Number\",",
+			"",
+			"\", \"",
+			"\"Real Number\"",
+			"\"String\"",
+			"\"Number\"",
+			"\"Real Number\",",
+			"\"Real Number\"",
+			"\"String\",",
+			"\"Number\",",
+			"id",
+			"i",
+			"o"
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"selected": 0,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "ga-analytics.php",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 3084,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								988,
+								988
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/PHP/PHP.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 26.0
+	},
+	"input":
+	{
+		"height": 33.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"output.xdebug":
+	{
+		"height": 61.0
+	},
+	"project": "ga-analytics.sublime-project",
+	"replace":
+	{
+		"height": 48.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+			[
+				"sho",
+				"page-shoutouts.php"
+			]
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 500.0,
+		"selected_items":
+		[
+		],
+		"width": 380.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": true,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 247.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}
