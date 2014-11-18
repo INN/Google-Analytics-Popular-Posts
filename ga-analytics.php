@@ -15,6 +15,9 @@ if ( ! defined ( 'ABSPATH' ) ) {
 	exit;
 }
 
+// Uncomment this to fake data.
+// define( 'FAKE_API' , TRUE );
+
 /** Table defines */
 global $wpdb;
 define('METRICS_TABLE', $wpdb->prefix . "analyticbridge_metrics");
@@ -99,7 +102,6 @@ register_deactivation_hook(__FILE__, 'analytic_bridge_plugin_deinit');
  */
 function new_interval($interval) {
 
-	error_log("Adding new interval.");
     $interval['10m'] = array('interval' => 10*60, 'display' => 'Once 10 minutes');
     return $interval;
 
@@ -385,6 +387,10 @@ function largo_pre_print($pre) {
  */
 function analytic_bridge_authenticate(&$e = null) {
 
+	if( FAKE_API ) {
+		return new Google_Client();
+	}
+
 	// No auth ticket or refresh token.
 	if( !(get_option('analyticbridge_access_token') && get_option('analyticbridge_refresh_token')) ) :
 		
@@ -456,20 +462,24 @@ function largo_anaylticbridge_cron() {
 
 	global $wpdb;
 
-	error_log("\nBeginning analyticbridge_cron");
+	AnalyticBridgeLog::log("\nBeginning analyticbridge_cron");
 	// 1: Create an API client.
 
 	$e = array();
 	$client = analytic_bridge_authenticate($e);
 	
 	if($client == false) {
-		error_log(" - Error creating api client:");
-		error_log(" - Message:" . $e["message"]);
-		error_log("End analyticbridge_cron\n");
+		AnalyticBridgeLog::log(" - Error creating api client:");
+		AnalyticBridgeLog::log(" - Message:" . $e["message"]);
+		AnalyticBridgeLog::log("End analyticbridge_cron\n");
 		return;
 	}
 
-	$analytics = new Google_Service_Analytics($client);
+	if(FAKE_API) {
+		$analytics = new Google_Service_Analytics_Generator($client);
+	} else {
+		$analytics = new Google_Service_Analytics($client);
+	}
 
 
 	// 2: Make API call.
@@ -482,6 +492,8 @@ function largo_anaylticbridge_cron() {
 					  "dimensions" => "ga:pagePath"
 					)
 	); // $ids, $startDate, $endDate, $metrics, $optParams
+
+	AnalyticBridgeLog::log( print_r($report,TRUE) );
 
 	// TODO: break here if API errors.
 	// TODO: paginate.
@@ -600,14 +612,14 @@ function largo_anaylticbridge_cron() {
 
 
 		$wpdb->query('ROLLBACK');
-		error_log(' - Error commiting sql to database.');
-		error_log("End analyticbridge_cron\n");
+		AnalyticBridgeLog::log(' - Error commiting sql to database.');
+		AnalyticBridgeLog::log("End analyticbridge_cron\n");
 		return;
 
 	}
 
-	error_log(' - Analytic Bridge cron executed successfully');
-	error_log("End analyticbridge_cron\n");
+	AnalyticBridgeLog::log(' - Analytic Bridge cron executed successfully');
+	AnalyticBridgeLog::log("End analyticbridge_cron\n");
 
 	return;
 
@@ -779,5 +791,114 @@ function analyticbridge_popular_posts_widget() {
 		echo "<li><b>" . get_the_title($r->post_id) . "</b> - " . $r->weighted_pageviews . "</li>" . " " . $r->pgviews;
 	}
 
+}
+
+/**
+ * Static logging class
+ * 
+ */
+Class AnalyticBridgeLog {
+
+	static $date = null;
+
+	static function log($log) {
+
+		if( !WP_DEBUG )
+			return;
+		
+		if( $date === null ) {
+			$date = new DateTime('now', new DateTimeZone('America/Chicago'));
+		}
+		
+		$time = $date->format('D M d h:i:s');
+		$log = "[$time] $log\n";
+
+		file_put_contents('./log.txt', $log, FILE_APPEND);
+
+	}
+
+}
+
+
+/**
+ * Class to fake Google Analytics requests.
+ * 
+ * This class extends Google_Service_Analytics and fakes requests to the
+ * Google API for debugging by generating data based on the global Wordpress
+ * object.
+ * 
+ * @since 1.0
+ */
+class Google_Service_Analytics_Generator extends Google_Service_Analytics {
+
+	public $data_ga;
+
+	/**
+	 * Construct a new Analytics Generator.
+	 * 
+	 * data_ga is set to ourselves. We handle the get function
+	 * internally.
+	 * 
+	 * @since 1.0
+	 */
+	public function __construct(Google_Client $client) {
+		$this->data_ga = $this;
+	}
+
+	/**
+	 * Overrided Google_Service_Analytics_DataGa_Resource get function.
+	 * 
+	 * 
+	 * @return Google_Service_Analytics_GaData Object with proper row values.
+	 */
+	public function get($ids, $startDate, $endDate, $metrics, $optParams = array()) {
+
+		$rows = array();
+		$metrics = explode(",",$metrics);
+		
+		$the_query = new WP_Query(  array( 'post_type' => 'post') );
+
+		if ( $the_query->have_posts() ) :
+
+			while ( $the_query->have_posts() ) : $the_query->the_post();
+	
+				$r = array();
+				$url = parse_url(get_permalink());
+				$r[0] = $url['path'] . $url['query'];
+
+				foreach($metrics as $m) {
+
+					if( $m == 'ga:sessions' ) {
+						$r[] = 100 + rand(-25,25);
+					} else if( $m == 'ga:pageviews') {
+						$r[] = 130 + rand(-25,25);
+					} else if ( $m == 'ga:exits' ) {
+						$r[] = 30 + rand(-10,10);
+					} else if ( $m == 'ga:bounceRate' ) {
+						$r[] = 60 + rand(-30,40);
+					} else if ( $m == 'ga:avgSessionDuration' ) {
+						$r[] = 231 + rand(-100,100);
+					} else if ( $m = 'ga:avgTimeOnPage' ) {
+						$r[] = 140 + rand(-40,130);
+					} else {
+						$r[] = 0;
+					}
+
+				}
+
+				$rows[] = $r;
+	
+			endwhile;
+		
+			wp_reset_postdata();
+
+		endif;
+
+		$toRet = new Google_Service_Analytics_GaData();
+		$toRet->rows = $rows;
+
+		return $toRet;
+
+	}
 
 }
