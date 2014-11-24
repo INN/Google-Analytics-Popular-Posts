@@ -112,6 +112,8 @@ function _analytic_bridge_plugin_init() {
 	// 2: Register a cron job.
 	wp_schedule_event( time(), '10m', 'analyticbridge_hourly_cron');
 
+	update_option('analyticbridge_setting_popular_posts_halflife',14);
+
 }
 
 /**
@@ -320,6 +322,30 @@ function analyticbridge_register_options() {
 	// Register our settings.
 	register_setting( 'analytic-bridge', 'analyticbridge_setting_account_profile_id' );
 
+	/**
+	 * Section 3: Popular Post settings
+	 */
+
+	// Add a section for our analytic-bridge page.
+	add_settings_section(
+		'largo_anaytic_bridge_popular_posts_settings_section',
+		'Popular Post Settings',
+		'largo_anaytic_bridge_popular_posts_settings_section_intro',
+		'analytic-bridge'
+	); // ($id, $title, $callback, $page)
+
+	// Add property field
+	add_settings_field(
+		'analyticbridge_setting_popular_posts_halflife',
+		'Post halflife',
+		'analyticbridge_setting_popular_posts_halflife_input',
+		'analytic-bridge',
+		'largo_anaytic_bridge_popular_posts_settings_section'
+	); // ($id, $title, $callback, $page, $section, $args)
+
+	// Register our settings.
+	register_setting( 'analytic-bridge', 'analyticbridge_setting_popular_posts_halflife' );
+
 }
 add_action('admin_init', 'analyticbridge_register_options');
   
@@ -339,6 +365,15 @@ function largo_anaytic_bridge_api_settings_section_intro() {
  */
 function largo_anaytic_bridge_account_settings_section_intro() {
 	echo '<p>Enter the property and profile that corresponds to this site.</p>';
+}
+
+/**
+ * Intro text for popular post settings
+ *
+ * @since 1.0
+ */
+function largo_anaytic_bridge_popular_posts_settings_section_intro() {
+	echo '<p>Enter the half life that popular post pageview weight should degrade by.</p>';
 }
  
 
@@ -369,6 +404,14 @@ function analyticbridge_setting_account_profile_id_input() {
 	echo '<input name="analyticbridge_setting_account_profile_id" id="analyticbridge_setting_account_profile_id" type="text" value="' . get_option('analyticbridge_setting_account_profile_id') . '" class="regular-text" />';
 }
 
+/**
+ * Prints input field for Popular Post halflife.
+ *
+ * @since 1.0
+ */ 
+function analyticbridge_setting_popular_posts_halflife_input() {
+	echo '<input name="analyticbridge_setting_popular_posts_halflife" id="analyticbridge_setting_popular_posts_halflife" type="text" value="' . get_option('analyticbridge_setting_popular_posts_halflife') . '" class="regular-text" />';
+}
 
 
 /** 
