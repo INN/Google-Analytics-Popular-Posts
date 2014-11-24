@@ -23,7 +23,7 @@ Class AnayticBridgePopularPosts implements Iterator {
 
 		$this->position = 0;
 		$this->queried = false;
-		$this->halflife = 14;
+		$this->halflife = get_option('analyticbridge_setting_popular_posts_halflife');
 		$this->size = 20;
 
     }
@@ -62,7 +62,7 @@ Class AnayticBridgePopularPosts implements Iterator {
 				-- calculate the weighted session averages.
 
 				( -- Calculate avg_pageviews.
-					(coalesce(t.sessions, 0) * $ratio * .5) + 
+					(coalesce(t.sessions, 0) * $ratio) + 
 					(coalesce(y.sessions, 0) * (1 - $ratio))
 				) AS `avg_pageviews`,
 				
@@ -72,7 +72,7 @@ Class AnayticBridgePopularPosts implements Iterator {
 				
 				( -- Calculate weighted_pageviews
 					(
-						(coalesce(t.sessions, 0) * $ratio * .5) + 
+						(coalesce(t.sessions, 0) * $ratio) + 
 						(coalesce(y.sessions, 0) * (1 - $ratio))
 					) * POWER( 
 						1/2, 
