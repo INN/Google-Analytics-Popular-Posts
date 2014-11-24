@@ -6,11 +6,11 @@
 - [x] Creation of database schema.
 - [x] Cron job registered.
 - [x] Dashboard widget
-- [ ] Cron job to update yesterday's values one a day.
+- [x] Cron job to update yesterday's values one a day.
 - [ ] Handle uninstall and disconnect properly.
 - [ ] Add front end options for the 'halflife' of a post
 - [ ] API for querying individual pageviews quickly.
-- [ ] Class or WP_Query support for sorting by 'popularity'
+- [x] Class or WP_Query support for sorting by 'popularity'
 - [ ] Add support for easier google redirect urls (rewrite rule)
 
 ## Connecting google services.
