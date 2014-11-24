@@ -489,33 +489,49 @@ function largo_anaylticbridge_cron() {
 		return;
 	}
 
-
 	$analytics = new Google_Service_Analytics($client);
 
+	query_and_save_analytics($analytics,"today","now");
+	query_and_save_analytics($analytics,"yesterday","yesterday");
 
-	// 2: Make API call.
+	AnalyticBridgeLog::log(' - Analytic Bridge cron executed successfully');
+	AnalyticBridgeLog::log("End analyticbridge_cron\n");
+
+	return;
+
+}
+add_action( 'analyticbridge_hourly_cron', 'largo_anaylticbridge_cron' );
+
+/**
+ * Queries analytics and saves them to the table given the passed in start
+ * and end dates.
+ * 
+ * If the start and end dates already exist in the table, it first clears
+ * them out and refreshes the values.
+ * 
+ */
+function query_and_save_analytics($analytics,$startdate,$enddate) {
+
+	global $wpdb;
+
+	$start = $startdate;
+
+	// Make API call.
+	// We use $start-$start because we're interested in one day.
 	$report = $analytics->data_ga->get(
 					get_option('analyticbridge_setting_account_profile_id'),
-					"today",
-					"today",
+					$start,
+					$start,
 					"ga:sessions,ga:pageviews,ga:exits,ga:bounceRate,ga:avgSessionDuration,ga:avgTimeOnPage",
 					array( 
 					  "dimensions" => "ga:pagePath"
 					)
 	); // $ids, $startDate, $endDate, $metrics, $optParams
 
-	AnalyticBridgeLog::log( print_r($report,TRUE) );
+	error_log( print_r($report,TRUE) );
 
 	// TODO: break here if API errors.
 	// TODO: paginate.
-
-	// Delete all old values from today.
-	$wpdb->query(
-
-		"DELETE FROM `" . METRICS_TABLE . "`
-			WHERE `startdate` >= CURDATE()"
-
-			);
 
 	// Start a mysql transaction, in a try catch.
 	try {
@@ -549,9 +565,8 @@ function largo_anaylticbridge_cron() {
 				));
 
 			$pageid = $wpdb->insert_id;
-			$tday = new DateTime('today');
-			$now = new DateTime();
-			$date = date('d.m.y h:i:s');
+			$tstart = new DateTime($startdate);
+			$tend = new DateTime($enddate);
 
 			// $r[1] - ga:sessions
 			// $r[2] - ga:pageviews
@@ -565,7 +580,7 @@ function largo_anaylticbridge_cron() {
 
 					"INSERT INTO `" . METRICS_TABLE . "` (page_id,startdate,enddate,metric,value)
 						VALUES (%d,%s,%s,%s,%s)
-					", $pageid, date_format($tday, 'Y-m-d H:i:s'), date_format($now, 'Y-m-d H:i:s'), 'ga:sessions', $r[1]
+					", $pageid, date_format($tstart, 'Y-m-d H:i:s'), date_format($tend, 'Y-m-d H:i:s'), 'ga:sessions', $r[1]
 
 				));
 
@@ -574,7 +589,7 @@ function largo_anaylticbridge_cron() {
 
 					"INSERT INTO `" . METRICS_TABLE . "` (page_id,startdate,enddate,metric,value)
 						VALUES (%d,%s,%s,%s,%s)
-					", $pageid, date_format($tday, 'Y-m-d H:i:s'), date_format($now, 'Y-m-d H:i:s'), 'ga:pageviews', $r[2]
+					", $pageid, date_format($tstart, 'Y-m-d H:i:s'), date_format($tend, 'Y-m-d H:i:s'), 'ga:pageviews', $r[2]
 
 				));
 
@@ -583,7 +598,7 @@ function largo_anaylticbridge_cron() {
 
 					"INSERT INTO `" . METRICS_TABLE . "` (page_id,startdate,enddate,metric,value)
 						VALUES (%d,%s,%s,%s,%s)
-					", $pageid, date_format($tday, 'Y-m-d H:i:s'), date_format($now, 'Y-m-d H:i:s'), 'ga:exits', $r[3]
+					", $pageid, date_format($tstart, 'Y-m-d H:i:s'), date_format($tend, 'Y-m-d H:i:s'), 'ga:exits', $r[3]
 
 				));
 
@@ -592,7 +607,7 @@ function largo_anaylticbridge_cron() {
 
 					"INSERT INTO `" . METRICS_TABLE . "` (page_id,startdate,enddate,metric,value)
 						VALUES (%d,%s,%s,%s,%s)
-					", $pageid, date_format($tday, 'Y-m-d H:i:s'), date_format($now, 'Y-m-d H:i:s'), 'ga:bounceRate', $r[4]
+					", $pageid, date_format($tstart, 'Y-m-d H:i:s'), date_format($tend, 'Y-m-d H:i:s'), 'ga:bounceRate', $r[4]
 
 				));
 
@@ -601,7 +616,7 @@ function largo_anaylticbridge_cron() {
 
 					"INSERT INTO `" . METRICS_TABLE . "` (page_id,startdate,enddate,metric,value)
 						VALUES (%d,%s,%s,%s,%s)
-					", $pageid, date_format($tday, 'Y-m-d H:i:s'), date_format($now, 'Y-m-d H:i:s'), 'ga:avgSessionDuration', $r[5]
+					", $pageid, date_format($tstart, 'Y-m-d H:i:s'), date_format($tend, 'Y-m-d H:i:s'), 'ga:avgSessionDuration', $r[5]
 
 				));
 
@@ -610,7 +625,7 @@ function largo_anaylticbridge_cron() {
 
 					"INSERT INTO `" . METRICS_TABLE . "` (page_id,startdate,enddate,metric,value)
 						VALUES (%d,%s,%s,%s,%s)
-					", $pageid, date_format($tday, 'Y-m-d H:i:s'), date_format($now, 'Y-m-d H:i:s'), 'ga:avgTimeOnPage', $r[6]
+					", $pageid, date_format($tstart, 'Y-m-d H:i:s'), date_format($tend, 'Y-m-d H:i:s'), 'ga:avgTimeOnPage', $r[6]
 
 				));
 
@@ -629,13 +644,7 @@ function largo_anaylticbridge_cron() {
 
 	}
 
-	AnalyticBridgeLog::log(' - Analytic Bridge cron executed successfully');
-	AnalyticBridgeLog::log("End analyticbridge_cron\n");
-
-	return;
-
 }
-add_action( 'analyticbridge_hourly_cron', 'largo_anaylticbridge_cron' );
 
 /**
  * =================================================================================================
@@ -715,7 +724,7 @@ function analyticbridge_popular_posts_widget() {
 			
 			( -- Calculate weighted_pageviews
 				(
-					(coalesce(t.sessions, 0) * $ratio) + 
+					(coalesce(t.sessions, 0) * $ratio * .4) + 
 					(coalesce(y.sessions, 0) * (1 - $ratio))
 				) * POWER( 
 					1/2, 
