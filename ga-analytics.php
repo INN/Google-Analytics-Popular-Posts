@@ -16,7 +16,7 @@ if ( ! defined ( 'ABSPATH' ) ) {
 }
 
 // Uncomment this to fake data.
-// define( 'FAKE_API' , TRUE );
+define( 'FAKE_API' , FALSE );
 
 /** Table defines */
 global $wpdb;
@@ -130,7 +130,7 @@ register_deactivation_hook(__FILE__, 'analytic_bridge_plugin_deinit');
  */
 function new_interval($interval) {
 
-    $interval['10m'] = array('interval' => 10*60, 'display' => 'Once 10 minutes');
+    $interval['10m'] = array('interval' => 1*60, 'display' => 'Once 10 minutes');
     return $interval;
 
 }
@@ -188,21 +188,13 @@ function analyticbridge_option_page_html() {
 		$client->setApplicationName("Analytic_Bridge_bhrld");
 		$client->setClientId( get_option('analyticbridge_setting_api_client_id') );
 		$client->setClientSecret( get_option('analyticbridge_setting_api_client_secret') );
-		$client->setRedirectUri("http://bhrld.com/wp/wp-admin/options-general.php?page=analytic-bridge");
+		$client->setRedirectUri(site_url("/wp-admin/options-general.php?page=analytic-bridge"));
 		$client->setAccessType("offline");
 		$client->setScopes(
 			array(
 				'https://www.googleapis.com/auth/analytics.readonly', 
 				'https://www.googleapis.com/auth/userinfo.email', 
 				'https://www.googleapis.com/auth/userinfo.profile'));
-
-		// For debugging. Remove access token.
-		if ( isset($_GET['clear']) ) {
-			delete_option('analyticbridge_access_token');
-			delete_option('analyticbridge_refresh_token');
-			$redirect = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'];
-			header('Location: ' . filter_var($redirect, FILTER_SANITIZE_URL));
-		}
 
 		// Google has posted a code back to us.
 		if ( isset($_GET['code']) ) {
@@ -387,9 +379,7 @@ function analyticbridge_setting_account_profile_id_input() {
 
 
 function largo_die($e) {
-
-		largo_pre_print($e);
-
+	largo_pre_print($e);
 }
 
 function largo_pre_print($pre) {
@@ -414,10 +404,6 @@ function largo_pre_print($pre) {
  * @return Google_Client object on success, 'false' on failure.
  */
 function analytic_bridge_authenticate(&$e = null) {
-
-	if( FAKE_API ) {
-		return new Google_Client();
-	}
 
 	// No auth ticket or refresh token.
 	if( !(get_option('analyticbridge_access_token') && get_option('analyticbridge_refresh_token')) ) :
@@ -447,7 +433,7 @@ function analytic_bridge_authenticate(&$e = null) {
 		$client->setApplicationName("Analytic_Bridge_bhrld");
 		$client->setClientId( get_option('analyticbridge_setting_api_client_id') );
 		$client->setClientSecret( get_option('analyticbridge_setting_api_client_secret') );
-		$client->setRedirectUri("http://bhrld.com/wp/wp-admin/options-general.php?page=analytic-bridge");
+		$client->setRedirectUri(site_url("/wp-admin/options-general.php?page=analytic-bridge"));
 		$client->setAccessType("offline");
 		$client->setScopes(
 			array(
@@ -491,8 +477,8 @@ function largo_anaylticbridge_cron() {
 	global $wpdb;
 
 	AnalyticBridgeLog::log("\nBeginning analyticbridge_cron");
-	// 1: Create an API client.
 
+	// 1: Create an API client.
 	$e = array();
 	$client = analytic_bridge_authenticate($e);
 	
@@ -503,11 +489,8 @@ function largo_anaylticbridge_cron() {
 		return;
 	}
 
-	if(FAKE_API) {
-		$analytics = new Google_Service_Analytics_Generator($client);
-	} else {
-		$analytics = new Google_Service_Analytics($client);
-	}
+
+	$analytics = new Google_Service_Analytics($client);
 
 
 	// 2: Make API call.
@@ -815,14 +798,29 @@ function analyticbridge_popular_posts_widget() {
 
 
 	// 3: Print list
+	
+	echo "<table>";
+	$i = 1;
+	
 	foreach($result as $r) {
-		echo "<li><b>" . get_the_title($r->post_id) . "</b> - " . $r->weighted_pageviews . "</li>" . " " . $r->pgviews;
+		echo "<tr>";
+			echo "<td rowspan='2'>#" . $i . "</td>";
+			echo "<td><b>" . get_the_title($r->post_id) . "</b><em> (" . $r->days_old . " hours ago)</em></td>";
+		echo "</tr>";
+		echo "<tr>";
+			echo "<td style='color:#939393'><em>yesterday: " . $r->yesterday_pageviews . " views, ";
+			echo "today: " . $r->today_pageviews . " views, ";
+			echo "<b>weight:</b> " . number_format($r->weighted_pageviews,2) . "</em></td>";
+		echo "</tr>";
+		$i++;
 	}
+
+	echo "</table>";
 
 }
 
 /**
- * Static logging class
+ * Static logging class for cron jobs.
  * 
  */
 Class AnalyticBridgeLog {
@@ -876,7 +874,6 @@ class Google_Service_Analytics_Generator extends Google_Service_Analytics {
 	/**
 	 * Overrided Google_Service_Analytics_DataGa_Resource get function.
 	 * 
-	 * 
 	 * @return Google_Service_Analytics_GaData Object with proper row values.
 	 */
 	public function get($ids, $startDate, $endDate, $metrics, $optParams = array()) {
@@ -928,5 +925,219 @@ class Google_Service_Analytics_Generator extends Google_Service_Analytics {
 		return $toRet;
 
 	}
+
+}
+
+
+Class AnayticBridgeList implements Iterator {
+
+	// array of results.
+	private $result;
+	
+	// used by iterator.
+	private $position;
+	
+	// was a valid query executed?
+	private $queried;
+
+	// half life to use while querying.
+	private $halflife;
+
+	// interval to query over.
+	private $interval;
+
+	public function __construct() {
+
+		$this->position = 0;
+		$this->queried = false;
+		$this->halflife = 14;
+
+    }
+
+    private function query() {
+
+    	global $wpdb;
+
+    	// 1: Calculate a ratio coeffient 
+		$tday = new DateTime('today',new DateTimeZone('America/Chicago'));
+		$now = new DateTime('',new DateTimeZone('America/Chicago'));
+
+		$interval = $tday->diff($now);
+
+		$minutes = $interval->h * 60 + $interval->i;
+
+		$ratio = $minutes / (24*60);
+
+		/* sql statement that pulls todays sessions, yesterdays 		*/
+		/* sessions and a weighted average of them from the database.	*/
+
+		$halflife = 14;
+
+    	$this->result = $wpdb->get_results("
+
+			--							---
+			--  SELECT POPULAR POSTS 	---
+			--							---
+
+			SELECT
+
+				pg.pagepath AS pagepath, 
+				pg.id AS page_id,
+				pst.id AS post_id, 
+				coalesce(t.sessions, 0) AS today_pageviews, 
+				coalesce(y.sessions, 0) AS yesterday_pageviews, 
+
+				-- calculate the weighted session averages.
+
+				( -- Calculate avg_pageviews.
+					(coalesce(t.sessions, 0) * $ratio) + 
+					(coalesce(y.sessions, 0) * (1 - $ratio))
+				) AS `avg_pageviews`,
+				
+				( -- Calulate days_old
+					TIMESTAMPDIFF( hour, pst.post_date, NOW() ) - 1
+				) AS `days_old`,
+				
+				( -- Calculate weighted_pageviews
+					(
+						(coalesce(t.sessions, 0) * $ratio) + 
+						(coalesce(y.sessions, 0) * (1 - $ratio))
+					) * POWER( 
+						1/2, 
+						( TIMESTAMPDIFF( hour, pst.post_date, NOW() ) - 1 ) / ($halflife * 24)
+					)
+				) AS `weighted_pageviews`
+
+			FROM 
+
+				`" . PAGES_TABLE . "` as `pg`
+
+			LEFT JOIN (
+			
+				-- 
+				-- Nested select returns today's sessions.
+				--
+			
+				SELECT
+
+					CAST(value as unsigned) as `sessions`, 
+					page_id
+				
+				FROM
+
+					`" . METRICS_TABLE . "` as m
+				
+				WHERE
+
+					m.metric = 'ga:pageviews'
+				
+				AND
+
+					m.startdate >= CURDATE() 
+			
+			) as `t` ON pg.id = t.page_id
+			
+			LEFT JOIN (
+			
+				-- 
+				-- Nested select returns yesterday's sessions.
+				--
+			
+				SELECT 
+				
+					CAST(value as unsigned) as `sessions`, 
+					`page_id`
+				
+				FROM
+				
+					`" . METRICS_TABLE . "` as m
+				
+				WHERE
+				
+					m.metric = 'ga:pageviews'
+				
+				AND 
+				
+					m.startdate >= CURDATE() - 1
+				
+				AND
+				
+					m.enddate < CURDATE()
+			
+			
+			) as `y` ON `pg`.`id` = `y`.`page_id`
+			
+			LEFT JOIN `" . $wpdb->prefix . "posts` as `pst`
+			  
+				ON `pst`.`id` = `pg`.`post_id`
+
+			-- For now, they must be posts.
+
+			WHERE `pst`.`post_type` = 'post'
+				
+				ORDER BY `weighted_pageviews` DESC
+				LIMIT 50
+
+
+		");
+
+		$this->queried = true;
+
+    }
+
+    /** Region: Iterator functions */
+
+	public function rewind() {
+
+		if( !$this->queried ) {
+			query();
+		}
+		$this->position = 0;
+
+	}
+
+	public function current() {
+
+		if( !$this->queried ) {
+			query();
+		}
+
+		return $this->result[$this->position];
+
+
+	}
+
+	public function key() {
+
+		if( !$this->queried ) {
+			query();
+		}
+
+		return $this->position;
+
+	}
+
+	public function next() {
+
+		if( !$this->queried ) {
+			query();
+		}
+
+		$this->position += 1;
+
+		return $this->position;
+
+	}
+
+	public function valid() {
+
+		if( !$this->queried ) {
+			query();
+		}
+
+		return isset($this->result[$this->position]);
+		
+	}
+
 
 }
