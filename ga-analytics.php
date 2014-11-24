@@ -31,13 +31,46 @@ require_once( plugin_dir_path( __FILE__ ) . 'api/src/Google/Service/Analytics.ph
 /**
  * Initializes the databases for the analytic bridge.
  *
- * @author Will Haynes
+ * @since 1.0
  */
-function analytic_bridge_plugin_init() {
+function analytic_bridge_plugin_init($networkwide) {
+            
+	global $wpdb;
 
+	if (function_exists('is_multisite') && is_multisite()) {
+		
+		// check if it is a network activation.
+		if ($networkwide) {
+		
+			$old_blog = $wpdb->blogid;
+			// Get all blog ids
+			$blogids = $wpdb->get_col("SELECT blog_id FROM $wpdb->blogs");
+			foreach ($blogids as $blog_id) {
+				switch_to_blog($blog_id);
+				_analytic_bridge_plugin_init();
+			}
+			switch_to_blog($old_blog);
+			return;
+		}   
+	} 
+	_analytic_bridge_plugin_init();
+
+}
+register_activation_hook( __FILE__, 'analytic_bridge_plugin_init' );
+
+/**
+ * Delegate the actual initalization code to a seperate function.
+ * 
+ */
+function _analytic_bridge_plugin_init() {
+	
 	/* do not generate any output here. */
 
 	global $wpdb;
+	
+	/* our globals aren't going to work because we switched blogs */
+	$metrics_table 	= $wpdb->prefix . "analyticbridge_metrics";
+	$pages_table 	= $wpdb->prefix . "analyticbridge_pages";
 
 	/* Run sql to create the proper tables we need. */
 	$result = $wpdb->query("
@@ -46,7 +79,7 @@ function analytic_bridge_plugin_init() {
 		--  Create metrics table 	---
 		--							---
 
-		CREATE TABLE IF NOT EXISTS `" . METRICS_TABLE . "` (
+		CREATE TABLE IF NOT EXISTS `" . $metrics_table . "` (
 			`id` int(11) NOT NULL AUTO_INCREMENT,
 			`page_id` int(11) NOT NULL,
 			`startdate` datetime NOT NULL,
@@ -66,7 +99,7 @@ function analytic_bridge_plugin_init() {
 		--  Create metrics table 	---
 		--							---
 
-		CREATE TABLE IF NOT EXISTS `" . PAGES_TABLE . "` (
+		CREATE TABLE IF NOT EXISTS `" . $pages_table . "` (
 			`id` int(11) NOT NULL AUTO_INCREMENT,
 			`pagepath` varchar(450) NOT NULL,
 			`post_id` int(11) NOT NULL,
@@ -76,15 +109,10 @@ function analytic_bridge_plugin_init() {
 
 	");
 
-
 	// 2: Register a cron job.
-
-	//if ( ! wp_next_scheduled( 'analyticbridge_hourly_cron' ) ) {
-		wp_schedule_event( time(), '10m', 'analyticbridge_hourly_cron');
-	//}
+	wp_schedule_event( time(), '10m', 'analyticbridge_hourly_cron');
 
 }
-register_activation_hook( __FILE__, 'analytic_bridge_plugin_init' );
 
 /**
  * Run when plugin is deactivated
@@ -484,7 +512,7 @@ function largo_anaylticbridge_cron() {
 
 	// 2: Make API call.
 	$report = $analytics->data_ga->get(
-					"ga:4325862",
+					get_option('analyticbridge_setting_account_profile_id'),
 					"today",
 					"today",
 					"ga:sessions,ga:pageviews,ga:exits,ga:bounceRate,ga:avgSessionDuration,ga:avgTimeOnPage",
