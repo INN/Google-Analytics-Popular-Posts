@@ -491,8 +491,8 @@ function largo_anaylticbridge_cron() {
 
 	$analytics = new Google_Service_Analytics($client);
 
-	query_and_save_analytics($analytics,"today","now");
-	query_and_save_analytics($analytics,"yesterday","yesterday");
+	query_and_save_analytics($analytics,"today");
+	query_and_save_analytics($analytics,"yesterday");
 
 	AnalyticBridgeLog::log(' - Analytic Bridge cron executed successfully');
 	AnalyticBridgeLog::log("End analyticbridge_cron\n");
@@ -503,14 +503,13 @@ function largo_anaylticbridge_cron() {
 add_action( 'analyticbridge_hourly_cron', 'largo_anaylticbridge_cron' );
 
 /**
- * Queries analytics and saves them to the table given the passed in start
- * and end dates.
+ * Queries analytics and saves them to the table for the given start date.
  * 
  * If the start and end dates already exist in the table, it first clears
  * them out and refreshes the values.
  * 
  */
-function query_and_save_analytics($analytics,$startdate,$enddate) {
+function query_and_save_analytics($analytics,$startdate) {
 
 	global $wpdb;
 
@@ -566,7 +565,7 @@ function query_and_save_analytics($analytics,$startdate,$enddate) {
 
 			$pageid = $wpdb->insert_id;
 			$tstart = new DateTime($startdate);
-			$tend = new DateTime($enddate);
+			$tend = new DateTime($startdate);
 
 			// $r[1] - ga:sessions
 			// $r[2] - ga:pageviews
@@ -579,8 +578,8 @@ function query_and_save_analytics($analytics,$startdate,$enddate) {
 			$wpdb->query( $wpdb->prepare(
 
 					"INSERT INTO `" . METRICS_TABLE . "` (page_id,startdate,enddate,metric,value)
-						VALUES (%d,%s,%s,%s,%s)
-					", $pageid, date_format($tstart, 'Y-m-d H:i:s'), date_format($tend, 'Y-m-d H:i:s'), 'ga:sessions', $r[1]
+						VALUES (%d,%s,%s,%s,%s) ON DUPLICATE KEY UPDATE `id`=LAST_INSERT_ID(id),`value`=%s
+					", $pageid, date_format($tstart, 'Y-m-d H:i:s'), date_format($tend, 'Y-m-d H:i:s'), 'ga:sessions', $r[1], $r[1]
 
 				));
 
@@ -588,8 +587,8 @@ function query_and_save_analytics($analytics,$startdate,$enddate) {
 			$wpdb->query( $wpdb->prepare(
 
 					"INSERT INTO `" . METRICS_TABLE . "` (page_id,startdate,enddate,metric,value)
-						VALUES (%d,%s,%s,%s,%s)
-					", $pageid, date_format($tstart, 'Y-m-d H:i:s'), date_format($tend, 'Y-m-d H:i:s'), 'ga:pageviews', $r[2]
+						VALUES (%d,%s,%s,%s,%s) ON DUPLICATE KEY UPDATE `id`=LAST_INSERT_ID(id),`value`=%s
+					", $pageid, date_format($tstart, 'Y-m-d H:i:s'), date_format($tend, 'Y-m-d H:i:s'), 'ga:pageviews', $r[2], $r[2]
 
 				));
 
@@ -597,8 +596,8 @@ function query_and_save_analytics($analytics,$startdate,$enddate) {
 			$wpdb->query( $wpdb->prepare(
 
 					"INSERT INTO `" . METRICS_TABLE . "` (page_id,startdate,enddate,metric,value)
-						VALUES (%d,%s,%s,%s,%s)
-					", $pageid, date_format($tstart, 'Y-m-d H:i:s'), date_format($tend, 'Y-m-d H:i:s'), 'ga:exits', $r[3]
+						VALUES (%d,%s,%s,%s,%s) ON DUPLICATE KEY UPDATE `id`=LAST_INSERT_ID(id),`value`=%s
+					", $pageid, date_format($tstart, 'Y-m-d H:i:s'), date_format($tend, 'Y-m-d H:i:s'), 'ga:exits', $r[3], $r[3]
 
 				));
 
@@ -606,8 +605,8 @@ function query_and_save_analytics($analytics,$startdate,$enddate) {
 			$wpdb->query( $wpdb->prepare(
 
 					"INSERT INTO `" . METRICS_TABLE . "` (page_id,startdate,enddate,metric,value)
-						VALUES (%d,%s,%s,%s,%s)
-					", $pageid, date_format($tstart, 'Y-m-d H:i:s'), date_format($tend, 'Y-m-d H:i:s'), 'ga:bounceRate', $r[4]
+						VALUES (%d,%s,%s,%s,%s) ON DUPLICATE KEY UPDATE `id`=LAST_INSERT_ID(id),`value`=%s
+					", $pageid, date_format($tstart, 'Y-m-d H:i:s'), date_format($tend, 'Y-m-d H:i:s'), 'ga:bounceRate', $r[4], $r[4]
 
 				));
 
@@ -615,8 +614,8 @@ function query_and_save_analytics($analytics,$startdate,$enddate) {
 			$wpdb->query( $wpdb->prepare(
 
 					"INSERT INTO `" . METRICS_TABLE . "` (page_id,startdate,enddate,metric,value)
-						VALUES (%d,%s,%s,%s,%s)
-					", $pageid, date_format($tstart, 'Y-m-d H:i:s'), date_format($tend, 'Y-m-d H:i:s'), 'ga:avgSessionDuration', $r[5]
+						VALUES (%d,%s,%s,%s,%s) ON DUPLICATE KEY UPDATE `id`=LAST_INSERT_ID(id),`value`=%s
+					", $pageid, date_format($tstart, 'Y-m-d H:i:s'), date_format($tend, 'Y-m-d H:i:s'), 'ga:avgSessionDuration', $r[5], $r[5]
 
 				));
 
@@ -624,8 +623,8 @@ function query_and_save_analytics($analytics,$startdate,$enddate) {
 			$wpdb->query( $wpdb->prepare(
 
 					"INSERT INTO `" . METRICS_TABLE . "` (page_id,startdate,enddate,metric,value)
-						VALUES (%d,%s,%s,%s,%s)
-					", $pageid, date_format($tstart, 'Y-m-d H:i:s'), date_format($tend, 'Y-m-d H:i:s'), 'ga:avgTimeOnPage', $r[6]
+						VALUES (%d,%s,%s,%s,%s) ON DUPLICATE KEY UPDATE `id`=LAST_INSERT_ID(id),`value`=%s
+					", $pageid, date_format($tstart, 'Y-m-d H:i:s'), date_format($tend, 'Y-m-d H:i:s'), 'ga:avgTimeOnPage', $r[6], $r[6]
 
 				));
 
