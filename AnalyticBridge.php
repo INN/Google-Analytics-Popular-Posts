@@ -5,7 +5,7 @@ Plugin Name: 	Analytic Bridge
 Description: 	Pull analytic data into your wordpress install.
 Author: 		Will Haynes for INN
 Author URI: 	http://twitter.com/innnerds
-Version:		α.1
+Version:		0.1
 License: 		Copyright © 2013 INN
 
 */
@@ -31,7 +31,7 @@ require_once( plugin_dir_path( __FILE__ ) . 'api/src/Google/Service/Analytics.ph
 /**
  * Initializes the databases for the analytic bridge.
  *
- * @since 1.0
+ * @since 0.1
  */
 function analytic_bridge_plugin_init($networkwide) {
             
@@ -117,14 +117,75 @@ function _analytic_bridge_plugin_init() {
 }
 
 /**
- * Run when plugin is deactivated
+ * Drop database tables when uninstalling the plugin.
  * 
- * @since 1.0
+ * Calls _analytic_bridge_plugin_deinit on each blog in the network.
+ * 
+ * Since we don't have a plugin upgrade format currently we must drop the tables
+ * in order to support users who don't have database access. Data will be rebuilt in
+ * first cron job after reinitializing.
+ * 
+ * Currently, we still keep all options (including Google API token).
+ * 
+ * @since 0.1
  */
-function analytic_bridge_plugin_deinit() {
-	wp_clear_scheduled_hook('analyticbridge_hourly_cron');
+function analytic_bridge_plugin_deinit($networkwide) {
+            
+	global $wpdb;
+
+	if (function_exists('is_multisite') && is_multisite()) {
+		
+		// check if it is a network activation.
+		if ($networkwide) {
+		
+			$old_blog = $wpdb->blogid;
+			// Get all blog ids
+			$blogids = $wpdb->get_col("SELECT blog_id FROM $wpdb->blogs");
+			foreach ($blogids as $blog_id) {
+				switch_to_blog($blog_id);
+				_analytic_bridge_plugin_deinit();
+			}
+			switch_to_blog($old_blog);
+			return;
+		}   
+	} 
+	_analytic_bridge_plugin_deinit();
+
 }
-register_deactivation_hook(__FILE__, 'analytic_bridge_plugin_deinit');
+register_deactivation_hook( __FILE__, 'analytic_bridge_plugin_deinit' );
+
+function _analytic_bridge_plugin_deinit() {
+
+	global $wpdb;
+	
+	/* our globals aren't going to work because we switched blogs */
+	$metrics_table 	= $wpdb->prefix . "analyticbridge_metrics";
+	$pages_table 	= $wpdb->prefix . "analyticbridge_pages";
+
+	/* Run sql to drop created tables */
+	$result = $wpdb->query("
+
+		--							---
+		--  Drop metrics table 	---
+		--							---
+
+		DROP TABLE  `" . $metrics_table . "` 
+
+	");
+
+	/* Run sql to drop created tables */
+	$result = $wpdb->query("
+
+		--							---
+		--  Drop pages table 	---
+		--							---
+
+		DROP TABLE `" . $pages_table . "` ");
+
+	// Clear hook
+	wp_clear_scheduled_hook('analyticbridge_hourly_cron');
+
+}
 
 /**
  * Add a new 10 minute interval for cron jobs.
@@ -147,7 +208,7 @@ add_filter('cron_schedules', 'new_interval');
 /**
  * Register a user option page for the Analytic Bridge
  *
- * @since 1.0
+ * @since 0.1
  */
 function analyticbridge_plugin_menu() {
 	add_options_page( 
@@ -166,7 +227,7 @@ add_action( 'admin_menu', 'analyticbridge_plugin_menu' );
  * 
  * If a $_GET variable is posted back to the page (by Google), it's stored as an option.
  *
- * @since 1.0
+ * @since 0.1
  */
 function analyticbridge_option_page_html() {
 
@@ -260,7 +321,7 @@ function analyticbridge_option_page_html() {
 /**
  * Registers options for the plugin.
  *
- * @since 1.0
+ * @since 0.1
  */
 function analyticbridge_register_options() {
 
@@ -352,7 +413,7 @@ add_action('admin_init', 'analyticbridge_register_options');
 /**
  * Intro text for our google api settings section.
  *
- * @since 1.0
+ * @since 0.1
  */
 function largo_anaytic_bridge_api_settings_section_intro() {
 	echo '<p>Enter the client id and client secret from your google developer console.</p>';
@@ -361,7 +422,7 @@ function largo_anaytic_bridge_api_settings_section_intro() {
 /**
  * Intro text for our google property settings section.
  *
- * @since 1.0
+ * @since 0.1
  */
 function largo_anaytic_bridge_account_settings_section_intro() {
 	echo '<p>Enter the property and profile that corresponds to this site.</p>';
@@ -370,7 +431,7 @@ function largo_anaytic_bridge_account_settings_section_intro() {
 /**
  * Intro text for popular post settings
  *
- * @since 1.0
+ * @since 0.1
  */
 function largo_anaytic_bridge_popular_posts_settings_section_intro() {
 	echo '<p>Enter the half life that popular post pageview weight should degrade by.</p>';
@@ -380,7 +441,7 @@ function largo_anaytic_bridge_popular_posts_settings_section_intro() {
 /**
  * Prints input field for Google Client ID setting.
  *
- * @since 1.0
+ * @since 0.1
  */ 
 function analyticbridge_setting_api_client_id_input() {
 	echo '<input name="analyticbridge_setting_api_client_id" id="analyticbridge_setting_api_client_id" type="text" value="' . get_option('analyticbridge_setting_api_client_id') . '" class="regular-text" />';
@@ -389,7 +450,7 @@ function analyticbridge_setting_api_client_id_input() {
 /**
  * Prints input field for Google Client Secret setting.
  *
- * @since 1.0
+ * @since 0.1
  */ 
 function analyticbridge_setting_api_client_secret_input() {
 	echo '<input name="analyticbridge_setting_api_client_secret" id="analyticbridge_setting_api_client_secret" type="text" value="' . get_option('analyticbridge_setting_api_client_secret') . '" class="regular-text" />';
@@ -398,7 +459,7 @@ function analyticbridge_setting_api_client_secret_input() {
 /**
  * Prints input field for Google Profile ID to pull data from.
  *
- * @since 1.0
+ * @since 0.1
  */ 
 function analyticbridge_setting_account_profile_id_input() {
 	echo '<input name="analyticbridge_setting_account_profile_id" id="analyticbridge_setting_account_profile_id" type="text" value="' . get_option('analyticbridge_setting_account_profile_id') . '" class="regular-text" />';
@@ -407,7 +468,7 @@ function analyticbridge_setting_account_profile_id_input() {
 /**
  * Prints input field for Popular Post halflife.
  *
- * @since 1.0
+ * @since 0.1
  */ 
 function analyticbridge_setting_popular_posts_halflife_input() {
 	echo '<input name="analyticbridge_setting_popular_posts_halflife" id="analyticbridge_setting_popular_posts_halflife" type="text" value="' . get_option('analyticbridge_setting_popular_posts_halflife') . '" class="regular-text" />';
@@ -570,8 +631,6 @@ function query_and_save_analytics($analytics,$startdate) {
 					)
 	); // $ids, $startDate, $endDate, $metrics, $optParams
 
-	error_log( print_r($report,TRUE) );
-
 	// TODO: break here if API errors.
 	// TODO: paginate.
 
@@ -714,7 +773,7 @@ add_action( 'wp_dashboard_setup', 'example_add_dashboard_widgets' );
  * 
  * An unordered list of 20 popular posts.
  * 
- * @since 1.0
+ * @since 0.1
  */
 function analyticbridge_popular_posts_widget() {
 
@@ -781,7 +840,7 @@ Class AnalyticBridgeLog {
  * Google API for debugging by generating data based on the global Wordpress
  * object.
  * 
- * @since 1.0
+ * @since 0.1
  */
 class Google_Service_Analytics_Generator extends Google_Service_Analytics {
 
@@ -793,7 +852,7 @@ class Google_Service_Analytics_Generator extends Google_Service_Analytics {
 	 * data_ga is set to ourselves. We handle the get function
 	 * internally.
 	 * 
-	 * @since 1.0
+	 * @since 0.1
 	 */
 	public function __construct(Google_Client $client) {
 		$this->data_ga = $this;

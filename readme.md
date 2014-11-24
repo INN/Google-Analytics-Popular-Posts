@@ -1,19 +1,20 @@
 # Analytic Bridge
 
-## Completed & TODO
+**_Warning:_** this plugin is under active development. Updating to new versions might require reactivating to rebuild database tables, as there is currently no upgrading framework.
 
-- [x] Authentication with Google Analytics.
-- [x] Creation of database schema.
-- [x] Cron job registered.
-- [x] Dashboard widget
-- [x] Cron job to update yesterday's values one a day.
-- [ ] Handle uninstall and disconnect properly.
-- [ ] Add front end options for the 'halflife' of a post
-- [ ] API for querying individual pageviews quickly.
-- [x] Class or WP_Query support for sorting by 'popularity'
-- [ ] Add support for easier google redirect urls (rewrite rule)
+## Description
+
+At its core, Analytic Bridge is a wrapper around the Google Analytics API. On plugin activation, a WordPress cron job is registered to pull fresh analytic data every 20 minutes.
+
+Functions for querying this data will be available in the future.
+
+To show a potential (and probable) use case, the plugin registers a popular post widget on the WordPress dashboard. The algorithm used is currently crude, but takes into account the age of each post as well as the number of views recieved in the current day and previous day.
+
+In the future (when we are comfortable with the algorithm) this widget will be registered as a sidebar widget for front-end use.
 
 ## Connecting google services.
+
+More detailed instructions coming soon.
 
 1. Log into https://console.developers.google.com/
 2. Create a new project, name it anything you want (e.g. 'Analytic Bridge')
@@ -22,3 +23,32 @@
 `http://{$path-to-wordpress}/wp-admin/options-general.php?page=analytic-bridge`
 5. Add the Client Secret and Client ID to the Analytic Bridge option page.
 6. [Find the profile id](https://support.google.com/analytics/answer/1032385?hl=en-GB) that corresponds to the Google Analytics table tracking your site, and save it in Property View ID. This should be in the format `ga:xxxxxxx`
+7. Save changes on your page. Assuming the values are valid a "connect" link should become available at the bottom of the page. Use this button to authorize a Google account with permissions to the Property View you are attempting to pull data from.
+
+## Questions
+
+###### _How does this differ from other WordPress popular post plugins?_
+The problem we found with many WordPress popular post plugins was the lack of data used in the algorithm. Our approach was first to pull as much data as possible into WordPress so we could develop a better algorithm.
+
+###### _What data are you capturing?_
+We're currently calling and caching the metrics `ga:sessions`, `ga:pageviews`, `ga:exits`, `ga:bounceRate`, `ga:avgSessionDuration` and `ga:avgTimeOnPage` to the database for each `ga:pagepath` dimension. Values for the current day and previous are stored during each cron job. A post id is generated for each `ga:pagepath` that corresponds to an actual post.
+
+###### _How do I query the data myself?_
+The data is stored across two database tables. The first (`analyticbridge_pages`) stores each `ga:pagepath` with a unique id and corresponding post id (if it exists).
+
+The second table (`analyticbridge_metrics`) relates a `page_id` to a metric & value over a start & end date.
+
+To query this data yourself, find the corresponding page_id from the pages table and select using it from the metrics table. This can be accomplished using joins.
+
+## Completed & TODO
+
+- [x] Authentication with Google Analytics.
+- [x] Creation of database schema.
+- [x] Cron job registered.
+- [x] Dashboard widget
+- [x] Cron job to update yesterday's values one a day.
+- [x] Handle uninstall and disconnect properly.
+- [x] Add front end options for the 'half-life' of a post
+- [x] Class or WP_Query support for pulling popular posts.
+- [ ] API for querying individual page views quickly.
+- [ ] Add support for easier google redirect urls (rewrite rule)
