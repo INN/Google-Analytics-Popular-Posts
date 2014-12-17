@@ -15,7 +15,7 @@ if ( ! defined ( 'ABSPATH' ) ) {
 	exit;
 }
 
-// Uncomment this to fake data.
+// Toggle this to generate fake data.
 define( 'FAKE_API' , FALSE );
 
 /** Table defines */
@@ -23,10 +23,24 @@ global $wpdb;
 define('METRICS_TABLE', $wpdb->prefix . "analyticbridge_metrics");
 define('PAGES_TABLE', $wpdb->prefix . "analyticbridge_pages");
 
-/** Include Google php client library. */
+/** Include Google PHP client library. */
 
 require_once( plugin_dir_path( __FILE__ ) . 'api/src/Google/Client.php');
 require_once( plugin_dir_path( __FILE__ ) . 'api/src/Google/Service/Analytics.php');
+require_once( plugin_dir_path( __FILE__ ) . 'AnalyticBridgeGoogleClient.php');
+
+/**
+ * Registers admin option page and populates with
+ * plugin settings.
+ */ 
+require_once( plugin_dir_path( __FILE__ ) . 'AnalyticBridgeOptions.php');
+
+
+/**
+ * =================================================================================================
+ * Region :: INSTALLING & UNINSTALLING
+ * =================================================================================================
+ */
 
 /**
  * Initializes the databases for the analytic bridge.
@@ -60,7 +74,9 @@ register_activation_hook( __FILE__, 'analytic_bridge_plugin_init' );
 
 /**
  * Delegate the actual initalization code to a seperate function.
+ * This is called for each blog instance on the network.
  * 
+ * @since 0.1
  */
 function _analytic_bridge_plugin_init() {
 	
@@ -125,7 +141,7 @@ function _analytic_bridge_plugin_init() {
  * in order to support users who don't have database access. Data will be rebuilt in
  * first cron job after reinitializing.
  * 
- * Currently, we still keep all options (including Google API token).
+ * We keep all options intact (including Google API token).
  * 
  * @since 0.1
  */
@@ -154,6 +170,11 @@ function analytic_bridge_plugin_deinit($networkwide) {
 }
 register_deactivation_hook( __FILE__, 'analytic_bridge_plugin_deinit' );
 
+/**
+ * Called on deinit for each blog in the network.
+ * 
+ * @since 0.1
+ */
 function _analytic_bridge_plugin_deinit() {
 
 	global $wpdb;
@@ -188,291 +209,21 @@ function _analytic_bridge_plugin_deinit() {
 }
 
 /**
- * Add a new 10 minute interval for cron jobs.
+ * Add new intervals for cron jobs.
  * 
+ * @since 0.1
  */
 function new_interval($interval) {
 
-    $interval['10m'] = array('interval' => 20*60, 'display' => 'Once 10 minutes');
+	$interval['10m'] = array('interval' => 15*60, 'display' => 'Once every 10 minutes');
+	$interval['15m'] = array('interval' => 15*60, 'display' => 'Once every 15 minutes');
+    $interval['20m'] = array('interval' => 15*60, 'display' => 'Once every 20 minutes');
+    $interval['30m'] = array('interval' => 15*60, 'display' => 'Once every 30 minutes');
+    $interval['45m'] = array('interval' => 15*60, 'display' => 'Once every 45 minutes');
     return $interval;
 
 }
 add_filter('cron_schedules', 'new_interval');
-
-/**
- * ----------------------------------------------------------------------------------------------
- * Step 1: Create a wordpress option page. 
- * ---------------------------------------------------------------------------------------------- 
- */
-
-/**
- * Register a user option page for the Analytic Bridge
- *
- * @since 0.1
- */
-function analyticbridge_plugin_menu() {
-	add_options_page( 
-		'Analytic Bridge Options', 					// $page_title title of the page.
-		'Analytic Bridge', 							// $menu_title the text to be used for the menu.
-		'manage_options', 							// $capability required capability for display.
-		'analytic-bridge', 							// $menu_slug unique slug for menu.
-		'analyticbridge_option_page_html' 	// $function callback.
-		);
-}
-add_action( 'admin_menu', 'analyticbridge_plugin_menu' );
-
-
-/**
- * Output the HTML for the Analytic Bridge option page.
- * 
- * If a $_GET variable is posted back to the page (by Google), it's stored as an option.
- *
- * @since 0.1
- */
-function analyticbridge_option_page_html() {
-
-	// Nice try.
-	if ( !current_user_can( 'manage_options' ) )
-		wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
-
-	echo '<div class="wrap">';
-	echo '<h2>Largo Analytic Bridge</h2>';
-	echo '<form method="post" action="options.php">';
-	settings_fields( 'analytic-bridge' );
-	do_settings_sections( 'analytic-bridge' );
-	submit_button();
-	echo '</form>';
-	echo '</div>';
-
-	if(get_option('analyticbridge_setting_api_client_id') && get_option('analyticbridge_setting_api_client_secret')) :
-
-		// Create a Google Client.
-		$client = new Google_Client();
-		$client->setApplicationName("Analytic_Bridge");
-		$client->setClientId( get_option('analyticbridge_setting_api_client_id') );
-		$client->setClientSecret( get_option('analyticbridge_setting_api_client_secret') );
-		$client->setRedirectUri(site_url("/wp-admin/options-general.php?page=analytic-bridge"));
-		$client->setAccessType("offline");
-		$client->setScopes(
-			array(
-				'https://www.googleapis.com/auth/analytics.readonly', 
-				'https://www.googleapis.com/auth/userinfo.email', 
-				'https://www.googleapis.com/auth/userinfo.profile'));
-
-		// Google has posted a code back to us.
-		if ( isset($_GET['code']) ) {
-			$client->authenticate($_GET['code']);
-			update_option('analyticbridge_access_token',$client->getAccessToken());
-			largo_pre_print( $client->getAccessToken() );
-			update_option('analyticbridge_refresh_token',$client->getRefreshToken());
-			largo_pre_print( get_option('analyticbridge_refresh_token'));
-			// Todo: Add this back
-			$redirect = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'];
-			header('Location: ' . filter_var($redirect, FILTER_SANITIZE_URL));
-		}
-
-		// No auth ticket loaded (yet).
-		
-		if( !get_option('analyticbridge_access_token') ) :
-
-			echo "<a href='" . $client->createAuthUrl() . "'>Connect</a>";
-
-		// Someone has previouly authenticated!
-
-		else :
-
-			try {
-
-				$client->setAccessToken( get_option('analyticbridge_access_token') );
-
-				if( $client->isAccessTokenExpired() && get_option('analyticbridge_refresh_token') ) {
-					$token = get_option('analyticbridge_refresh_token');
-					largo_pre_print($token);
-					$accesstoken = $client->refreshToken( $token );
-					largo_pre_print( $accesstoken );
-					update_option('analyticbridge_access_token',$client->getAccessToken());
-				}
-				
-
-				$service = new Google_Service_Oauth2($client);
-				$user = $service->userinfo->get();
-				echo "Connected as " . $user->getEmail();
-			
-			} catch(Google_Auth_Exception $e) {
-				
-				largo_pre_print( get_option('analyticbridge_access_token') );
-				largo_die($e);
-
-			}
-
-		endif;
-
-
-	else :
-	
-		echo "Enter your API details";
-
-	endif;
-
-	// largo_anaylticbridge_cron();
-
-}
-
-/**
- * Registers options for the plugin.
- *
- * @since 0.1
- */
-function analyticbridge_register_options() {
-
-	/**
-	 * Section 1: API settings section
-	 */
-
-	// Add a section for our analytic-bridge page.
-	add_settings_section(
-		'largo_anaytic_bridge_api_settings_section',
-		'Google API tokens',
-		'largo_anaytic_bridge_api_settings_section_intro',
-		'analytic-bridge'
-	); // ($id, $title, $callback, $page)
-	
-	// Add Client ID field.
-	add_settings_field(
-		'analyticbridge_setting_api_client_id',
-		'Google Client ID',
-		'analyticbridge_setting_api_client_id_input',
-		'analytic-bridge',
-		'largo_anaytic_bridge_api_settings_section'
-	); // ($id, $title, $callback, $page, $section, $args)
-	
-	// Add Client Secret field
-	add_settings_field(
-		'analyticbridge_setting_api_client_secret',
-		'Google Client Secret',
-		'analyticbridge_setting_api_client_secret_input',
-		'analytic-bridge',
-		'largo_anaytic_bridge_api_settings_section'
-	); // ($id, $title, $callback, $page, $section, $args)
-
-	// Register our settings.
-	register_setting( 'analytic-bridge', 'analyticbridge_setting_api_client_id' );
-	register_setting( 'analytic-bridge', 'analyticbridge_setting_api_client_secret' );
-
-	/**
-	 * Section 2: Google Analytics Profile View ID
-	 */
-
-	// Add a section for our analytic-bridge page.
-	add_settings_section(
-		'largo_anaytic_bridge_account_settings_section',
-		'Google Analytics Property',
-		'largo_anaytic_bridge_account_settings_section_intro',
-		'analytic-bridge'
-	); // ($id, $title, $callback, $page)
-
-	// Add property field
-	add_settings_field(
-		'analyticbridge_setting_account_profile_id',
-		'Property View ID',
-		'analyticbridge_setting_account_profile_id_input',
-		'analytic-bridge',
-		'largo_anaytic_bridge_account_settings_section'
-	); // ($id, $title, $callback, $page, $section, $args)
-
-	// Register our settings.
-	register_setting( 'analytic-bridge', 'analyticbridge_setting_account_profile_id' );
-
-	/**
-	 * Section 3: Popular Post settings
-	 */
-
-	// Add a section for our analytic-bridge page.
-	add_settings_section(
-		'largo_anaytic_bridge_popular_posts_settings_section',
-		'Popular Post Settings',
-		'largo_anaytic_bridge_popular_posts_settings_section_intro',
-		'analytic-bridge'
-	); // ($id, $title, $callback, $page)
-
-	// Add property field
-	add_settings_field(
-		'analyticbridge_setting_popular_posts_halflife',
-		'Post halflife',
-		'analyticbridge_setting_popular_posts_halflife_input',
-		'analytic-bridge',
-		'largo_anaytic_bridge_popular_posts_settings_section'
-	); // ($id, $title, $callback, $page, $section, $args)
-
-	// Register our settings.
-	register_setting( 'analytic-bridge', 'analyticbridge_setting_popular_posts_halflife' );
-
-}
-add_action('admin_init', 'analyticbridge_register_options');
-  
-/**
- * Intro text for our google api settings section.
- *
- * @since 0.1
- */
-function largo_anaytic_bridge_api_settings_section_intro() {
-	echo '<p>Enter the client id and client secret from your google developer console.</p>';
-}
-
-/**
- * Intro text for our google property settings section.
- *
- * @since 0.1
- */
-function largo_anaytic_bridge_account_settings_section_intro() {
-	echo '<p>Enter the property and profile that corresponds to this site.</p>';
-}
-
-/**
- * Intro text for popular post settings
- *
- * @since 0.1
- */
-function largo_anaytic_bridge_popular_posts_settings_section_intro() {
-	echo '<p>Enter the half life that popular post pageview weight should degrade by.</p>';
-}
- 
-
-/**
- * Prints input field for Google Client ID setting.
- *
- * @since 0.1
- */ 
-function analyticbridge_setting_api_client_id_input() {
-	echo '<input name="analyticbridge_setting_api_client_id" id="analyticbridge_setting_api_client_id" type="text" value="' . get_option('analyticbridge_setting_api_client_id') . '" class="regular-text" />';
-}
-
-/**
- * Prints input field for Google Client Secret setting.
- *
- * @since 0.1
- */ 
-function analyticbridge_setting_api_client_secret_input() {
-	echo '<input name="analyticbridge_setting_api_client_secret" id="analyticbridge_setting_api_client_secret" type="text" value="' . get_option('analyticbridge_setting_api_client_secret') . '" class="regular-text" />';
-}
-
-/**
- * Prints input field for Google Profile ID to pull data from.
- *
- * @since 0.1
- */ 
-function analyticbridge_setting_account_profile_id_input() {
-	echo '<input name="analyticbridge_setting_account_profile_id" id="analyticbridge_setting_account_profile_id" type="text" value="' . get_option('analyticbridge_setting_account_profile_id') . '" class="regular-text" />';
-}
-
-/**
- * Prints input field for Popular Post halflife.
- *
- * @since 0.1
- */ 
-function analyticbridge_setting_popular_posts_halflife_input() {
-	echo '<input name="analyticbridge_setting_popular_posts_halflife" id="analyticbridge_setting_popular_posts_halflife" type="text" value="' . get_option('analyticbridge_setting_popular_posts_halflife') . '" class="regular-text" />';
-}
 
 
 /** 
@@ -492,85 +243,6 @@ function largo_pre_print($pre) {
 	echo "</pre>";
 }
 
-
-/**
- * Attempts to authenticate with google's servers.
- * 
- * Pulls the access_token and refresh_token provided by google from the 
- * database and authenticates a google client.
- * 
- * On success, returns a google_client object that's pre authenticated and loaded
- * with the right scopes to access analytic data and email/name of the authenticated.
- * 
- * On failure, returns false.
- * 
- * @param array $e passed by reference. If provided, $e will contain error information if authentication fails.
- * @return Google_Client object on success, 'false' on failure.
- */
-function analytic_bridge_authenticate(&$e = null) {
-
-	// No auth ticket or refresh token.
-	if( !(get_option('analyticbridge_access_token') && get_option('analyticbridge_refresh_token')) ) :
-		
-		if( $e ) {
-			$e = array();
-			$e['message'] = 'No access token. Get a system administrator to authenticate the Analytic Bridge.';
-		}
-
-		return false;
-
-	// No client id or client secret.
-	elseif( !(get_option('analyticbridge_setting_api_client_id') && get_option('analyticbridge_setting_api_client_secret')) ) :
-
-		if( $e ) {
-			$e = array();
-			$e['message'] = 'No access token. Get a system administrator to authenticate the Analytic Bridge.';
-		}
-
-		return false;
-
-	// We have everything we need.
-	else : 
-
-		// Create a Google Client.
-		$client = new Google_Client();
-		$client->setApplicationName("Analytic_Bridge");
-		$client->setClientId( get_option('analyticbridge_setting_api_client_id') );
-		$client->setClientSecret( get_option('analyticbridge_setting_api_client_secret') );
-		$client->setRedirectUri(site_url("/wp-admin/options-general.php?page=analytic-bridge"));
-		$client->setAccessType("offline");
-		$client->setScopes(
-			array(
-				'https://www.googleapis.com/auth/analytics.readonly', 
-				'https://www.googleapis.com/auth/userinfo.email', 
-				'https://www.googleapis.com/auth/userinfo.profile')
-			);
-
-		try {
-			$client->setAccessToken( get_option('analyticbridge_access_token') );
-			if( $client->isAccessTokenExpired() && get_option('analyticbridge_refresh_token') ) {
-				$token = get_option('analyticbridge_refresh_token');
-				$accesstoken = $client->refreshToken( $token );
-				update_option('analyticbridge_access_token',$client->getAccessToken());
-			}
-			$service = new Google_Service_Oauth2($client);
-		
-		} catch(Google_Auth_Exception $error) {
-			
-			largo_pre_print( get_option('analyticbridge_access_token') );
-
-			// return error information
-			if ( $e ) $e = $error;
-			return false;
-		}
-
-		// Return our client.
-		return $client;
-
-	endif;
-
-}
-
 /**
  * A cron job that loads data from google analytics into out analytic tables.
  * 
@@ -584,7 +256,7 @@ function largo_anaylticbridge_cron() {
 
 	// 1: Create an API client.
 	$e = array();
-	$client = analytic_bridge_authenticate($e);
+	$client = analytic_bridge_google_client($e);
 	
 	if($client == false) {
 		AnalyticBridgeLog::log(" - Error creating api client:");
@@ -758,15 +430,15 @@ function query_and_save_analytics($analytics,$startdate) {
  *
  * This function is hooked into the 'wp_dashboard_setup' action below.
  */
-function example_add_dashboard_widgets() {
+function analyticbridge_add_dashboard_widgets() {
 
 	wp_add_dashboard_widget(
-                 'analyticbridge_popular_posts',         // Widget slug.
-                 'Popular Posts',         // Title.
-                 'analyticbridge_popular_posts_widget' // Display function.
+                 'analyticbridge_popular_posts',         	// Widget slug.
+                 'Popular Posts',         					// Title.
+                 'analyticbridge_popular_posts_widget' 		// Display function.
         );	
 }
-add_action( 'wp_dashboard_setup', 'example_add_dashboard_widgets' );
+add_action( 'wp_dashboard_setup', 'analyticbridge_add_dashboard_widgets' );
 
 /**
  * Outputs the HTML for the popular post widget.
