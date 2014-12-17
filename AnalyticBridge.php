@@ -254,10 +254,13 @@ function largo_anaylticbridge_cron() {
 
 	AnalyticBridgeLog::log("\nBeginning analyticbridge_cron");
 
+	if(!(analyticbridge_client_id() && analyticbridge_client_secret() && get_option('analyticbridge_setting_account_profile_id'))) {
+		exit;
+	}
+
 	// 1: Create an API client.
-	$e = array();
-	$client = analytic_bridge_google_client($e);
-	
+	$client = analytic_bridge_google_client(true,$e);
+			
 	if($client == false) {
 		AnalyticBridgeLog::log(" - Error creating api client:");
 		AnalyticBridgeLog::log(" - Message:" . $e["message"]);
@@ -408,7 +411,6 @@ function query_and_save_analytics($analytics,$startdate) {
 
 	// Catch mysql exception. TODO: catch only mysql exceptions.
 	} catch(Exception $e) {
-
 
 		$wpdb->query('ROLLBACK');
 		AnalyticBridgeLog::log(' - Error commiting sql to database.');

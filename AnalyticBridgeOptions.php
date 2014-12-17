@@ -1,6 +1,7 @@
 <?php
 
 require_once( plugin_dir_path( __FILE__ ) . 'AnalyticBridgeGoogleClient.php');
+require_once( plugin_dir_path( __FILE__ ) . 'AnalyticBridge.php');
 
 /**
  * Register network option page for the Analytic Bridge.
@@ -120,7 +121,6 @@ function analyticbridge_option_page_html() {
 			echo "Connected as " . $user->getEmail();
 
 		endif;
-
 
 	else :
 	
