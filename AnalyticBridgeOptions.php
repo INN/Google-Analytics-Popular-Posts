@@ -97,8 +97,6 @@ function analyticbridge_option_page_html() {
 	settings_fields( 'analytic-bridge' );
 	do_settings_sections( 'analytic-bridge' );
 	submit_button();
-	echo analyticbridge_client_id();
-	echo analyticbridge_client_secret();
 	echo '</form>';
 	echo '</div>'; // div.wrap
 
