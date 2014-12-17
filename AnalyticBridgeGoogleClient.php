@@ -18,8 +18,8 @@
  */
 function analytic_bridge_google_client($auth = true,&$e = null) {
 
-	// No auth ticket or refresh token.
-	if( !(get_option('analyticbridge_access_token') && get_option('analyticbridge_refresh_token')) ) :
+	// We want to authenticate and there is no auth ticket or refresh token.
+	if( $auth && !(get_option('analyticbridge_access_token') && get_option('analyticbridge_refresh_token')) ) :
 		
 		if( $e ) {
 			$e = array();
@@ -28,8 +28,8 @@ function analytic_bridge_google_client($auth = true,&$e = null) {
 
 		return false;
 
-	// No client id or client secret.
-	elseif( !(analyticbridge_client_id() && analyticbridge_client_secret()) ) :
+	// We want to authenticate and there is no client id or client secret.
+	elseif( $auth && !(analyticbridge_client_id() && analyticbridge_client_secret()) ) :
 
 		if( $e ) {
 			$e = array();
