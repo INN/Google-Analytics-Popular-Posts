@@ -28,12 +28,15 @@ define('PAGES_TABLE', $wpdb->prefix . "analyticbridge_pages");
 require_once( plugin_dir_path( __FILE__ ) . 'api/src/Google/Client.php');
 require_once( plugin_dir_path( __FILE__ ) . 'api/src/Google/Service/Analytics.php');
 require_once( plugin_dir_path( __FILE__ ) . 'AnalyticBridgeGoogleClient.php');
-
+require_once( plugin_dir_path( __FILE__ ) . 'Analytic_Bridge_Service.php');
 /**
  * Registers admin option page and populates with
  * plugin settings.
  */ 
 require_once( plugin_dir_path( __FILE__ ) . 'AnalyticBridgeOptions.php');
+
+include_once(plugin_dir_path( __FILE__ ) .'classes/AnalyticsDashWidget.php');
+include_once(plugin_dir_path( __FILE__ ) .'classes/AnalyticsPopularWidget.php');
 
 
 /**
@@ -143,7 +146,7 @@ function _analytic_bridge_plugin_init() {
  * 
  * We keep all options intact (including Google API token).
  * 
- * @since 0.1
+ * @since v0.1
  */
 function analytic_bridge_plugin_deinit($networkwide) {
             
@@ -246,35 +249,51 @@ function largo_pre_print($pre) {
 /**
  * A cron job that loads data from google analytics into out analytic tables.
  * 
+ * @since v0.2
+ * 
  * @uses get_site_url
+ * 
+ * @param boolean $verbose set to true to print 
  */
-function largo_anaylticbridge_cron() {
+function largo_anaylticbridge_cron($verbose = false) {
 
 	global $wpdb;
 
-	AnalyticBridgeLog::log("\nBeginning analyticbridge_cron");
+	$rustart = getrusage(); // track usage.
+
+	if($verbose) echo("\nBeginning analyticbridge_cron...\n\n");
 
 	if(!(analyticbridge_client_id() && analyticbridge_client_secret() && get_option('analyticbridge_setting_account_profile_id'))) {
 		exit;
 	}
 
 	// 1: Create an API client.
+
 	$client = analytic_bridge_google_client(true,$e);
 			
 	if($client == false) {
-		AnalyticBridgeLog::log(" - Error creating api client:");
-		AnalyticBridgeLog::log(" - Message:" . $e["message"]);
-		AnalyticBridgeLog::log("End analyticbridge_cron\n");
+		if($verbose) echo("[Error] creating api client, message: " . $e["message"] . "\n");
+		if($verbose) echo("\nEnd analyticbridge_cron\n");
 		return;
 	}
 
-	$analytics = new Google_Service_Analytics($client);
+	$analytics = new Analytic_Bridge_Service($client);
 
-	query_and_save_analytics($analytics,"today");
-	query_and_save_analytics($analytics,"yesterday");
+	query_and_save_analytics($analytics,"today",$verbose);
+	query_and_save_analytics($analytics,"yesterday",$verbose);
 
-	AnalyticBridgeLog::log(' - Analytic Bridge cron executed successfully');
-	AnalyticBridgeLog::log("End analyticbridge_cron\n");
+	if($verbose) echo("Analytic Bridge cron executed successfully\n");
+	if($verbose) echo("\nEnd analyticbridge_cron\n");
+
+	// Script end
+	function rutime($ru, $rus, $index) {
+    	return ($ru["ru_$index.tv_sec"]*1000 + intval($ru["ru_$index.tv_usec"]/1000)) - ($rus["ru_$index.tv_sec"]*1000 + intval($rus["ru_$index.tv_usec"]/1000));
+	}
+		
+	$ru = getrusage();
+	if($verbose) echo "\nThis process used " . rutime($ru, $rustart, "utime") . " ms for its computations\n";
+	if($verbose) echo "It spent " . rutime($ru, $rustart, "stime") . " ms in system calls\n";
+
 
 	return;
 
@@ -287,12 +306,15 @@ add_action( 'analyticbridge_hourly_cron', 'largo_anaylticbridge_cron' );
  * If the start and end dates already exist in the table, it first clears
  * them out and refreshes the values.
  * 
+ * @param boolean $verbose whether we should print while we do it.
  */
-function query_and_save_analytics($analytics,$startdate) {
+function query_and_save_analytics($analytics,$startdate,$verbose = false) {
 
 	global $wpdb;
 
 	$start = $startdate;
+
+	if($verbose) echo "Making a call to ga:get...\n";
 
 	// Make API call.
 	// We use $start-$start because we're interested in one day.
@@ -305,6 +327,18 @@ function query_and_save_analytics($analytics,$startdate) {
 					  "dimensions" => "ga:pagePath"
 					)
 	); // $ids, $startDate, $endDate, $metrics, $optParams
+
+	if($verbose) {
+		echo "returned:\n\n";
+		echo " - type: " . gettype($report) . "\n";
+		echo " - itemsPerPage: " . $report->itemsPerPage . "\n";
+		echo " - row count: " . sizeof($report->rows) . "\n\n";
+	} 
+
+	// Get google's timezone. Save it in case we need it later.
+
+	$gaTimezone = $analytics->timezone($report);
+	update_option('analyticbridge_analytics_timezone',$gaTimezone);
 
 	// TODO: break here if API errors.
 	// TODO: paginate.
@@ -341,8 +375,10 @@ function query_and_save_analytics($analytics,$startdate) {
 				));
 
 			$pageid = $wpdb->insert_id;
-			$tstart = new DateTime($startdate);
-			$tend = new DateTime($startdate);
+
+			// Adjust things to save based on the google analytics timezone.
+			$tstart = new DateTime($startdate,new DateTimeZone($gaTimezone));
+			$tend = new DateTime($startdate,new DateTimeZone($gaTimezone));
 
 			// $r[1] - ga:sessions
 			// $r[2] - ga:pageviews
@@ -356,7 +392,7 @@ function query_and_save_analytics($analytics,$startdate) {
 
 					"INSERT INTO `" . METRICS_TABLE . "` (page_id,startdate,enddate,metric,value)
 						VALUES (%d,%s,%s,%s,%s) ON DUPLICATE KEY UPDATE `id`=LAST_INSERT_ID(id),`value`=%s
-					", $pageid, date_format($tstart, 'Y-m-d H:i:s'), date_format($tend, 'Y-m-d H:i:s'), 'ga:sessions', $r[1], $r[1]
+					", $pageid, date_format($tstart, 'Y-m-d'), date_format($tend, 'Y-m-d'), 'ga:sessions', $r[1], $r[1]
 
 				));
 
@@ -365,7 +401,7 @@ function query_and_save_analytics($analytics,$startdate) {
 
 					"INSERT INTO `" . METRICS_TABLE . "` (page_id,startdate,enddate,metric,value)
 						VALUES (%d,%s,%s,%s,%s) ON DUPLICATE KEY UPDATE `id`=LAST_INSERT_ID(id),`value`=%s
-					", $pageid, date_format($tstart, 'Y-m-d H:i:s'), date_format($tend, 'Y-m-d H:i:s'), 'ga:pageviews', $r[2], $r[2]
+					", $pageid, date_format($tstart, 'Y-m-d'), date_format($tend, 'Y-m-d'), 'ga:pageviews', $r[2], $r[2]
 
 				));
 
@@ -374,7 +410,7 @@ function query_and_save_analytics($analytics,$startdate) {
 
 					"INSERT INTO `" . METRICS_TABLE . "` (page_id,startdate,enddate,metric,value)
 						VALUES (%d,%s,%s,%s,%s) ON DUPLICATE KEY UPDATE `id`=LAST_INSERT_ID(id),`value`=%s
-					", $pageid, date_format($tstart, 'Y-m-d H:i:s'), date_format($tend, 'Y-m-d H:i:s'), 'ga:exits', $r[3], $r[3]
+					", $pageid, date_format($tstart, 'Y-m-d'), date_format($tend, 'Y-m-d'), 'ga:exits', $r[3], $r[3]
 
 				));
 
@@ -383,7 +419,7 @@ function query_and_save_analytics($analytics,$startdate) {
 
 					"INSERT INTO `" . METRICS_TABLE . "` (page_id,startdate,enddate,metric,value)
 						VALUES (%d,%s,%s,%s,%s) ON DUPLICATE KEY UPDATE `id`=LAST_INSERT_ID(id),`value`=%s
-					", $pageid, date_format($tstart, 'Y-m-d H:i:s'), date_format($tend, 'Y-m-d H:i:s'), 'ga:bounceRate', $r[4], $r[4]
+					", $pageid, date_format($tstart, 'Y-m-d'), date_format($tend, 'Y-m-d'), 'ga:bounceRate', $r[4], $r[4]
 
 				));
 
@@ -392,7 +428,7 @@ function query_and_save_analytics($analytics,$startdate) {
 
 					"INSERT INTO `" . METRICS_TABLE . "` (page_id,startdate,enddate,metric,value)
 						VALUES (%d,%s,%s,%s,%s) ON DUPLICATE KEY UPDATE `id`=LAST_INSERT_ID(id),`value`=%s
-					", $pageid, date_format($tstart, 'Y-m-d H:i:s'), date_format($tend, 'Y-m-d H:i:s'), 'ga:avgSessionDuration', $r[5], $r[5]
+					", $pageid, date_format($tstart, 'Y-m-d'), date_format($tend, 'Y-m-d'), 'ga:avgSessionDuration', $r[5], $r[5]
 
 				));
 
@@ -401,7 +437,7 @@ function query_and_save_analytics($analytics,$startdate) {
 
 					"INSERT INTO `" . METRICS_TABLE . "` (page_id,startdate,enddate,metric,value)
 						VALUES (%d,%s,%s,%s,%s) ON DUPLICATE KEY UPDATE `id`=LAST_INSERT_ID(id),`value`=%s
-					", $pageid, date_format($tstart, 'Y-m-d H:i:s'), date_format($tend, 'Y-m-d H:i:s'), 'ga:avgTimeOnPage', $r[6], $r[6]
+					", $pageid, date_format($tstart, 'Y-m-d'), date_format($tend, 'Y-m-d'), 'ga:avgTimeOnPage', $r[6], $r[6]
 
 				));
 
@@ -413,70 +449,11 @@ function query_and_save_analytics($analytics,$startdate) {
 	} catch(Exception $e) {
 
 		$wpdb->query('ROLLBACK');
-		AnalyticBridgeLog::log(' - Error commiting sql to database.');
-		AnalyticBridgeLog::log("End analyticbridge_cron\n");
+		if($verbose) echo("[Error] commiting sql to database.\n");
+		if($verbose) echo("\nEnd analyticbridge_cron\n");
 		return;
 
 	}
-
-}
-
-/**
- * =================================================================================================
- * DASHBOARD WIDGET
- * =================================================================================================
- */
-
-/**
- * Add a widget to the dashboard.
- *
- * This function is hooked into the 'wp_dashboard_setup' action below.
- */
-function analyticbridge_add_dashboard_widgets() {
-
-	wp_add_dashboard_widget(
-                 'analyticbridge_popular_posts',         	// Widget slug.
-                 'Popular Posts',         					// Title.
-                 'analyticbridge_popular_posts_widget' 		// Display function.
-        );	
-}
-add_action( 'wp_dashboard_setup', 'analyticbridge_add_dashboard_widgets' );
-
-/**
- * Outputs the HTML for the popular post widget.
- * 
- * An unordered list of 20 popular posts.
- * 
- * @since 0.1
- */
-function analyticbridge_popular_posts_widget() {
-
-	global $wpdb;
-
-	// Display whatever it is you want to show.
-	echo "<p>Most popular posts from Google Analytics, with a relative weighting average.</p>";
-
-	$popPosts = new AnayticBridgePopularPosts();
-
-	// 3: Print list
-	
-	echo "<table>";
-	$i = 1;
-	
-	foreach($popPosts as $r) {
-		echo "<tr>";
-			echo "<td rowspan='2'>#" . $i . "</td>";
-			echo "<td><b>" . get_the_title($r->post_id) . "</b><em> (" . $r->days_old . " hours ago)</em></td>";
-		echo "</tr>";
-		echo "<tr>";
-			echo "<td style='color:#939393'><em>yesterday: " . $r->yesterday_pageviews . " views, ";
-			echo "today: " . $r->today_pageviews . " views, ";
-			echo "<b>weight:</b> " . number_format($r->weighted_pageviews,2) . "</em></td>";
-		echo "</tr>";
-		$i++;
-	}
-
-	echo "</table>";
 
 }
 
@@ -487,6 +464,8 @@ function analyticbridge_popular_posts_widget() {
 Class AnalyticBridgeLog {
 
 	static $date = null;
+	static $errorLog = false;
+	static $printLog = false;
 
 	static function log($log) {
 
@@ -500,8 +479,6 @@ Class AnalyticBridgeLog {
 		$time = $date->format('D M d h:i:s');
 		$log = "[$time] $log\n";
 
-		file_put_contents('./log.txt', $log, FILE_APPEND);
-
 	}
 
 }
@@ -514,7 +491,9 @@ Class AnalyticBridgeLog {
  * Google API for debugging by generating data based on the global Wordpress
  * object.
  * 
- * @since 0.1
+ * Needs work.
+ * 
+ * @since v0.1
  */
 class Google_Service_Analytics_Generator extends Google_Service_Analytics {
 
@@ -526,7 +505,7 @@ class Google_Service_Analytics_Generator extends Google_Service_Analytics {
 	 * data_ga is set to ourselves. We handle the get function
 	 * internally.
 	 * 
-	 * @since 0.1
+	 * @since v0.1
 	 */
 	public function __construct(Google_Client $client) {
 		$this->data_ga = $this;

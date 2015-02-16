@@ -11,8 +11,12 @@
  * 
  * On failure, returns false.
  * 
- * @param boolean $auth whether we should try to authenticate the client or just set it up with the right scopes.
- * @param array $e passed by reference. If provided, $e will contain error information if authentication fails.
+ * @since v0.1
+ * 
+ * @param boolean $auth whether we should try to authenticate the client or just set it up 
+ *        with the right scopes.
+ * @param array $e passed by reference. If provided, $e will contain error information 
+ *        if authentication fails.
  * 
  * @return Google_Client object on success, 'false' on failure.
  */
@@ -133,6 +137,14 @@ function analyticbridge_client_secret() {
 	}
 }
 
+
+/**
+ * If API tokens are defined for the network return true. Else, return false.
+ * 
+ * @since v0.1
+ * 
+ * @return boolean true if network api tokens are defined, false if otherwise.
+ */
 function analyticbridge_using_network_api_tokens() {
 	if(get_site_option('analyticbridge_network_setting_api_client_secret_network') || get_site_option('analyticbridge_network_setting_api_client_id')) {
 		return true;

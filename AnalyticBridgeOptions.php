@@ -3,10 +3,17 @@
 require_once( plugin_dir_path( __FILE__ ) . 'AnalyticBridgeGoogleClient.php');
 require_once( plugin_dir_path( __FILE__ ) . 'AnalyticBridge.php');
 
+
+/** 
+ * ================================================================================================
+ *     #region: network option page.
+ * ================================================================================================
+ */
+
 /**
- * Register network option page for the Analytic Bridge.
+ * Register *network* option page for the Analytic Bridge.
  *
- * @since 0.1
+ * @since v0.1
  */
 function analyticbridge_network_plugin_menu() {
 
@@ -22,6 +29,12 @@ function analyticbridge_network_plugin_menu() {
 }
 add_action( 'network_admin_menu', 'analyticbridge_network_plugin_menu' );
 
+
+/**
+ * Output the html for the *network* option page.
+ * 
+ * @since v0.1
+ */
 function analyticbridge_network_option_page_html() {
 
 	if(!current_user_can('manage_network_options')) 
@@ -31,6 +44,7 @@ function analyticbridge_network_option_page_html() {
 	echo '<form action="'. admin_url('admin-post.php?action=network-analytic-bridge-options') .'" method="post">';
 
 	wp_nonce_field('network_option_page_update');
+
 	echo "<h3>Google API tokens</h3>";
 	echo "<p>Set API tokens for the network.</p>";
 	echo "<table class='form-table'>";
@@ -41,6 +55,7 @@ function analyticbridge_network_option_page_html() {
 	echo "</tbody></table>";
 
 	submit_button();
+
 	echo '</form>';
 	echo '</div>'; // div.wrap
 
@@ -62,10 +77,18 @@ function analyticbridge_update_network_options(){
 }
 add_action('admin_post_network-analytic-bridge-options',  'analyticbridge_update_network_options');
 
+
+/** 
+ * ================================================================================================
+ *     #region: blog option page(s).
+ * ================================================================================================
+ */
+
+
 /**
  * Register option page for the Analytic Bridge.
  *
- * @since 0.1
+ * @since v0.1
  */
 function analyticbridge_plugin_menu() {
 	add_options_page( 
@@ -83,7 +106,7 @@ add_action( 'admin_menu', 'analyticbridge_plugin_menu' );
  * 
  * If a $_GET variable is posted back to the page (by Google), it's stored as an option.
  *
- * @since 0.1
+ * @since v0.1
  */
 function analyticbridge_option_page_html() {
 
@@ -99,7 +122,9 @@ function analyticbridge_option_page_html() {
 	do_settings_sections( 'analytic-bridge' );
 	submit_button();
 	echo '</form>';
-	echo '</div>'; // div.wrap
+
+
+	// check if there is a client id/secret defined.
 
 	if(analyticbridge_client_id() && analyticbridge_client_secret()) :
 
@@ -108,7 +133,7 @@ function analyticbridge_option_page_html() {
 			$client = analytic_bridge_authenticate_google_client($_GET['code']);
 			$redirect = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'];
 			header('Location: ' . filter_var($redirect, FILTER_SANITIZE_URL));
-		
+
 		// No auth ticket loaded (yet).
 		elseif( !get_option('analyticbridge_access_token') ) :
 			$client = analytic_bridge_google_client(false);
@@ -122,18 +147,38 @@ function analyticbridge_option_page_html() {
 
 		endif;
 
+		/* The user has asked us to run the cron. */
+		if( isset($_GET['update']) ) :
+
+			echo "<h3>Running Update...</h3>";
+			echo "<pre>";
+				echo "Running cron...";
+				largo_anaylticbridge_cron(true);
+			echo "</pre>";
+
+		else :
+
+			echo "<h3>Update Analytics</h3>";
+			echo "<pre>";
+				echo '<a href="' . admin_url('options-general.php?page=analytic-bridge&update'). '">Update analytics</a>';
+			echo "</pre>";
+
+		endif;
+
 	else :
 	
 		echo "Enter your API details";
 
 	endif;
 
+	echo '</div>'; // div.wrap
+
 }
 
 /**
  * Registers options for the plugin.
  *
- * @since 0.1
+ * @since v0.1
  */
 function analyticbridge_register_options() {
 
@@ -239,11 +284,12 @@ add_action('admin_init', 'analyticbridge_register_options');
 /**
  * Intro text for our google api settings section.
  *
- * @since 0.1
+ * @since v0.1
  */
 function largo_anaytic_bridge_api_settings_section_intro() {
 	if( !analyticbridge_using_network_api_tokens() ) {
 		echo '<p>Enter the client id and client secret from your google developer console.</p>';
+		echo '<p>Notes: ensure the <em>consent screen</em> has an email and product name defined, the <em>credentials screen</em> has a proper redirect uri defined and the analytic API is enabled on the <em>API</em> screen.';
 	} else {
 		echo '<em>API tokens already set by network.</em>';
 	}
@@ -252,7 +298,7 @@ function largo_anaytic_bridge_api_settings_section_intro() {
 /**
  * Intro text for our google property settings section.
  *
- * @since 0.1
+ * @since v0.1
  */
 function largo_anaytic_bridge_account_settings_section_intro() {
 	echo '<p>Enter the property and profile that corresponds to this site.</p>';
@@ -261,7 +307,7 @@ function largo_anaytic_bridge_account_settings_section_intro() {
 /**
  * Intro text for popular post settings
  *
- * @since 0.1
+ * @since v0.1
  */
 function largo_anaytic_bridge_popular_posts_settings_section_intro() {
 	echo '<p>Enter the half life that popular post pageview weight should degrade by.</p>';
@@ -271,7 +317,7 @@ function largo_anaytic_bridge_popular_posts_settings_section_intro() {
 /**
  * Prints input field for Google Client ID setting.
  *
- * @since 0.1
+ * @since v0.1
  */ 
 function analyticbridge_setting_api_client_id_input() {
 	echo '<input name="analyticbridge_setting_api_client_id" id="analyticbridge_setting_api_client_id" type="text" value="' . analyticbridge_client_id() . '" class="regular-text" />';
@@ -280,7 +326,7 @@ function analyticbridge_setting_api_client_id_input() {
 /**
  * Prints input field for Google Client Secret setting.
  *
- * @since 0.1
+ * @since v0.1
  */ 
 function analyticbridge_setting_api_client_secret_input() {
 	echo '<input name="analyticbridge_setting_api_client_secret" id="analyticbridge_setting_api_client_secret" type="text" value="' . analyticbridge_client_secret() . '" class="regular-text" />';
@@ -289,7 +335,7 @@ function analyticbridge_setting_api_client_secret_input() {
 /**
  * Prints input field for Google Profile ID to pull data from.
  *
- * @since 0.1
+ * @since v0.1
  */ 
 function analyticbridge_setting_account_profile_id_input() {
 	echo '<input name="analyticbridge_setting_account_profile_id" id="analyticbridge_setting_account_profile_id" type="text" value="' . get_option('analyticbridge_setting_account_profile_id') . '" class="regular-text" />';
@@ -298,7 +344,7 @@ function analyticbridge_setting_account_profile_id_input() {
 /**
  * Prints input field for Popular Post halflife.
  *
- * @since 0.1
+ * @since v0.1
  */ 
 function analyticbridge_setting_popular_posts_halflife_input() {
 	echo '<input name="analyticbridge_setting_popular_posts_halflife" id="analyticbridge_setting_popular_posts_halflife" type="text" value="' . get_option('analyticbridge_setting_popular_posts_halflife') . '" class="regular-text" />';
