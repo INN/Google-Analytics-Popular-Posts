@@ -2,29 +2,6 @@
 
 **_Warning:_** this plugin is under active development. Updating to new versions might require reactivating to rebuild database tables, as there is currently no upgrading framework.
 
-## Description
-
-At its core, Analytic Bridge is a wrapper around the Google Analytics API. On plugin activation, a WordPress cron job is registered to pull fresh analytic data every 20 minutes.
-
-Functions for querying this data will be available in the future.
-
-To show a potential (and probable) use case, the plugin registers a popular post widget on the WordPress dashboard. The algorithm used is currently crude, but takes into account the age of each post as well as the number of views recieved in the current day and previous day.
-
-In the future (when we are comfortable with the algorithm) this widget will be registered as a sidebar widget for front-end use.
-
-## Connecting google services.
-
-More detailed instructions coming soon.
-
-1. Log into https://console.developers.google.com/
-2. Create a new project, name it anything you want (e.g. 'Analytic Bridge')
-3. Under Credentials click 'Create new Client ID'
-4. Under 'Authorized redirect URIs' insert the following url:
-`http://{$path-to-wordpress}/wp-admin/options-general.php?page=analytic-bridge`
-5. Add the Client Secret and Client ID to the Analytic Bridge option page.
-6. [Find the profile id](https://support.google.com/analytics/answer/1032385?hl=en-GB) that corresponds to the Google Analytics table tracking your site, and save it in Property View ID. This should be in the format `ga:xxxxxxx`
-7. Save changes on your page. Assuming the values are valid a "connect" link should become available at the bottom of the page. Use this button to authorize a Google account with permissions to the Property View you are attempting to pull data from.
-
 ## Questions
 
 ###### _How does this differ from other WordPress popular post plugins?_
