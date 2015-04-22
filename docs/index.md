@@ -10,7 +10,12 @@ The WordPress Analytic Bridge is an experiment of the [Institute for Nonprofit N
 
 ---
 
-## Description
+### Contents
+ * __<big>[Setup Instructions](setup.md)</big>__ 
+
+---
+
+### Description
 
 At its core, Analytic Bridge is a wrapper around the Google Analytics API. On plugin activation, a WordPress cron job is registered to pull fresh analytic data every 20 minutes.
 
