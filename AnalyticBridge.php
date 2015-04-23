@@ -24,11 +24,11 @@ define('METRICS_TABLE', $wpdb->prefix . "analyticbridge_metrics");
 define('PAGES_TABLE', $wpdb->prefix . "analyticbridge_pages");
 
 /** Include Google PHP client library. */
-
 require_once( plugin_dir_path( __FILE__ ) . 'api/src/Google/Client.php');
 require_once( plugin_dir_path( __FILE__ ) . 'api/src/Google/Service/Analytics.php');
 require_once( plugin_dir_path( __FILE__ ) . 'AnalyticBridgeGoogleClient.php');
 require_once( plugin_dir_path( __FILE__ ) . 'Analytic_Bridge_Service.php');
+
 /**
  * Registers admin option page and populates with
  * plugin settings.
@@ -37,7 +37,7 @@ require_once( plugin_dir_path( __FILE__ ) . 'AnalyticBridgeOptions.php');
 
 include_once(plugin_dir_path( __FILE__ ) .'classes/AnalyticsDashWidget.php');
 include_once(plugin_dir_path( __FILE__ ) .'classes/AnalyticsPopularWidget.php');
-
+include_once(plugin_dir_path( __FILE__ ) .'classes/AnalyticBridgeGoogleAnalytics.php');
 
 /**
  * =================================================================================================
@@ -103,6 +103,7 @@ function _analytic_bridge_plugin_init() {
 			`page_id` int(11) NOT NULL,
 			`startdate` datetime NOT NULL,
 			`enddate` datetime NOT NULL,
+			`querytime` datetime NOT NULL,
 			`metric` varchar(64) NOT NULL,
 			`value` varchar(64) NOT NULL,
 			PRIMARY KEY (`id`),
@@ -112,6 +113,7 @@ function _analytic_bridge_plugin_init() {
 	");
 
 	/* Run sql to create the proper tables we need. */
+
 	$result = $wpdb->query("
 
 		--							---
@@ -329,8 +331,7 @@ function query_and_save_analytics($analytics,$startdate,$verbose = false) {
 	); // $ids, $startDate, $endDate, $metrics, $optParams
 
 	if($verbose) {
-		echo "returned:\n\n";
-		echo " - type: " . gettype($report) . "\n";
+		echo "returned report:\n\n";
 		echo " - itemsPerPage: " . $report->itemsPerPage . "\n";
 		echo " - row count: " . sizeof($report->rows) . "\n\n";
 	} 
@@ -346,104 +347,180 @@ function query_and_save_analytics($analytics,$startdate,$verbose = false) {
 	// Start a mysql transaction, in a try catch.
 	try {
 	
-		$wpdb->query('START TRANSACTION');
+		// $wpdb->query('START TRANSACTION');
+
+		// Begin our sql statement.
+		$pagesql = "INSERT INTO `" . PAGES_TABLE . "` (pagepath, post_id) VALUES \n";
+		$metricsql = "INSERT INTO `" . METRICS_TABLE . "` (page_id,startdate,enddate,querytime,metric,value) VALUES \n";
+
+		// caching iterator contains hasNext() functionality.
+		$iter = new CachingIterator(new ArrayIterator($report->rows));
 		
-		foreach($report->rows as $r) :
+		foreach($iter as $r) :
 		
 			// $r[0] - pagePath
-	
-			// remove index.php from the end of the string.
 			$gapath = $r[0];
 	
 			// map google url path the wordpress path.
-			$wpurl = get_site_url() . preg_replace('/index.php$/', '', $gapath);
+			$wpurl = get_home_url() . preg_replace('/index.php$/', '', $gapath);
 	
 			// try to determine the $postid.
 			$postid = url_to_postid( $wpurl );
+
+
+			if( $postid && (get_permalink($postid) != $wpurl) ) {
+
+				//
+				// In some cases, two pagepaths might belong to the same post.
+				// examples of this.
+				//
+				// This happened to anything in this if statement.
+				// examples include:
+				//
+				//   - /?p=123212
+				//   - /sports/2015/04/23/heres-the-slug/index.php
+				//   - /index.php?p=118468&preview=true
+				//   - &c.
+				// 
+				// So that something like a preview page doesn't overwrite its low metrics
+				// with the actual count we catch it here and do nothing with it.
+				// everything else follows the else.
+				// 
+
+			} else {
 	
-			// Insert into our 'post' table the pagepath and related postid
-			// (if it doesn't exist).
-			// Update `id` so that mysql_last_inserted is set.
-			$wpdb->query( $wpdb->prepare(
+				// Insert into our 'post' table the pagepath and related postid
+				// (if it doesn't exist).
+				// Update `id` so that mysql_last_inserted is set.
+				$pagesql .= $wpdb->prepare(
+						"\t(%s, %s)", $gapath, $postid
+					);
+	
+				// Adjust things to save based on the google analytics timezone.
+				$tstart = new DateTime($startdate,new DateTimeZone($gaTimezone));
+				$tend = new DateTime($startdate,new DateTimeZone($gaTimezone));
+	
+				// The time that the query happened (± a few seconds).
+				$qTime = new DateTime('now',new DateTimeZone($gaTimezone));
+	
+				// $r[1] - ga:sessions
+				// $r[2] - ga:pageviews
+				// $r[3] - ga:exits
+				// $r[4] - ga:bounceRate
+				// $r[5] - ga:avgSessionDuration
+				// $r[6] - ga:avgTimeOnPage
+	
+				// Insert ga:sessions
+				$metricsql .= $wpdb->prepare(
+	
+						"( 
+							(SELECT `id` from " . PAGES_TABLE . " WHERE `pagepath`=%s),
+							%s,
+							%s,
+							%s,
+							%s,
+							%s)
+						", $r[0], date_format($tstart, 'Y-m-d'), date_format($tend, 'Y-m-d'), date_format($qTime, 'Y-m-d H:i:s'), 'ga:sessions', $r[1], $r[1]
+	
+					);
+	
+				$metricsql .= ", \n";
+	
+				// Insert ga:pageviews
+				$metricsql .= $wpdb->prepare(
+	
+						"( 
+							(SELECT `id` from " . PAGES_TABLE . " WHERE `pagepath`=%s),
+							%s,
+							%s,
+							%s,
+							%s,
+							%s)
+						", $r[0], date_format($tstart, 'Y-m-d'), date_format($tend, 'Y-m-d'), date_format($qTime, 'Y-m-d H:i:s'), 'ga:pageviews', $r[2], $r[2]
+	
+					);
+	
+				$metricsql .= ", \n";
+	
+				// Insert ga:exits
+				$metricsql .= $wpdb->prepare(
+	
+						"( 
+							(SELECT `id` from " . PAGES_TABLE . " WHERE `pagepath`=%s),
+							%s,
+							%s,
+							%s,
+							%s,
+							%s)
+						", $r[0], date_format($tstart, 'Y-m-d'), date_format($tend, 'Y-m-d'), date_format($qTime, 'Y-m-d H:i:s'), 'ga:exits', $r[3], $r[3]
+	
+					);
+	
+				$metricsql .= ", \n";
+	
+				// Insert ga:bouncerate
+				$metricsql .= $wpdb->prepare(
+	
+						"( 
+							(SELECT `id` from " . PAGES_TABLE . " WHERE `pagepath`=%s),
+							%s,
+							%s,
+							%s,
+							%s,
+							%s)
+						", $r[0], date_format($tstart, 'Y-m-d'), date_format($tend, 'Y-m-d'), date_format($qTime, 'Y-m-d H:i:s'), 'ga:bounceRate', $r[4], $r[4]
+	
+					);
+	
+				$metricsql .= ", \n";
+	
+				// Insert ga:avgSessionDuration
+				$metricsql .= $wpdb->prepare(
+	
+						"( 
+							(SELECT `id` from " . PAGES_TABLE . " WHERE `pagepath`=%s),
+							%s,
+							%s,
+							%s,
+							%s,
+							%s)
+						", $r[0], date_format($tstart, 'Y-m-d'), date_format($tend, 'Y-m-d'), date_format($qTime, 'Y-m-d H:i:s'), 'ga:avgSessionDuration', $r[5], $r[5]
+	
+					);
+	
+				$metricsql .= ", \n";
+	
+				// Insert ga:avgTimeOnPage
+				$metricsql .= $wpdb->prepare(
+	
+						"( 
+							(SELECT `id` from " . PAGES_TABLE . " WHERE `pagepath`=%s),
+							%s,
+							%s,
+							%s,
+							%s,
+							%s)
+						", $r[0], date_format($tstart, 'Y-m-d'), date_format($tend, 'Y-m-d'), date_format($qTime, 'Y-m-d H:i:s'), 'ga:avgTimeOnPage', $r[6], $r[6]
+	
+					);
+	
+				if($iter->hasNext()) {
+					$pagesql .= ", \n";
+					$metricsql .= ", \n";
+				}
 
-					"INSERT INTO `" . PAGES_TABLE . "` (pagepath, post_id) 
-						VALUES (%s, %s) 
-    					ON DUPLICATE KEY 
-    					UPDATE `id`=LAST_INSERT_ID(id)
-        			", $gapath, $postid
-
-				));
-
-			$pageid = $wpdb->insert_id;
-
-			// Adjust things to save based on the google analytics timezone.
-			$tstart = new DateTime($startdate,new DateTimeZone($gaTimezone));
-			$tend = new DateTime($startdate,new DateTimeZone($gaTimezone));
-
-			// $r[1] - ga:sessions
-			// $r[2] - ga:pageviews
-			// $r[3] - ga:exits
-			// $r[4] - ga:bounceRate
-			// $r[5] - ga:avgSessionDuration
-			// $r[6] - ga:avgTimeOnPage
-
-			// Insert ga:sessions
-			$wpdb->query( $wpdb->prepare(
-
-					"INSERT INTO `" . METRICS_TABLE . "` (page_id,startdate,enddate,metric,value)
-						VALUES (%d,%s,%s,%s,%s) ON DUPLICATE KEY UPDATE `id`=LAST_INSERT_ID(id),`value`=%s
-					", $pageid, date_format($tstart, 'Y-m-d'), date_format($tend, 'Y-m-d'), 'ga:sessions', $r[1], $r[1]
-
-				));
-
-			// Insert ga:pageviews
-			$wpdb->query( $wpdb->prepare(
-
-					"INSERT INTO `" . METRICS_TABLE . "` (page_id,startdate,enddate,metric,value)
-						VALUES (%d,%s,%s,%s,%s) ON DUPLICATE KEY UPDATE `id`=LAST_INSERT_ID(id),`value`=%s
-					", $pageid, date_format($tstart, 'Y-m-d'), date_format($tend, 'Y-m-d'), 'ga:pageviews', $r[2], $r[2]
-
-				));
-
-			// Insert ga:exits
-			$wpdb->query( $wpdb->prepare(
-
-					"INSERT INTO `" . METRICS_TABLE . "` (page_id,startdate,enddate,metric,value)
-						VALUES (%d,%s,%s,%s,%s) ON DUPLICATE KEY UPDATE `id`=LAST_INSERT_ID(id),`value`=%s
-					", $pageid, date_format($tstart, 'Y-m-d'), date_format($tend, 'Y-m-d'), 'ga:exits', $r[3], $r[3]
-
-				));
-
-			// Insert ga:bounceRate
-			$wpdb->query( $wpdb->prepare(
-
-					"INSERT INTO `" . METRICS_TABLE . "` (page_id,startdate,enddate,metric,value)
-						VALUES (%d,%s,%s,%s,%s) ON DUPLICATE KEY UPDATE `id`=LAST_INSERT_ID(id),`value`=%s
-					", $pageid, date_format($tstart, 'Y-m-d'), date_format($tend, 'Y-m-d'), 'ga:bounceRate', $r[4], $r[4]
-
-				));
-
-			// Insert ga:avgSessionDuration
-			$wpdb->query( $wpdb->prepare(
-
-					"INSERT INTO `" . METRICS_TABLE . "` (page_id,startdate,enddate,metric,value)
-						VALUES (%d,%s,%s,%s,%s) ON DUPLICATE KEY UPDATE `id`=LAST_INSERT_ID(id),`value`=%s
-					", $pageid, date_format($tstart, 'Y-m-d'), date_format($tend, 'Y-m-d'), 'ga:avgSessionDuration', $r[5], $r[5]
-
-				));
-
-			// Insert ga:avgTimeOnPage
-			$wpdb->query( $wpdb->prepare(
-
-					"INSERT INTO `" . METRICS_TABLE . "` (page_id,startdate,enddate,metric,value)
-						VALUES (%d,%s,%s,%s,%s) ON DUPLICATE KEY UPDATE `id`=LAST_INSERT_ID(id),`value`=%s
-					", $pageid, date_format($tstart, 'Y-m-d'), date_format($tend, 'Y-m-d'), 'ga:avgTimeOnPage', $r[6], $r[6]
-
-				));
+			}
 
 		endforeach;
 
-		$wpdb->query('COMMIT');
+		// on duplicate key, don't do much.
+		$pagesql .= " ON DUPLICATE KEY UPDATE `id`=LAST_INSERT_ID(id)";
+
+		// on duplicate key update the value and querytime.
+		$metricsql .= " ON DUPLICATE KEY UPDATE `id`=LAST_INSERT_ID(id),`querytime`=values(querytime),`value`=values(value)";
+
+    	$wpdb->query( $pagesql );
+    	$wpdb->query( $metricsql );
 
 	// Catch mysql exception. TODO: catch only mysql exceptions.
 	} catch(Exception $e) {
