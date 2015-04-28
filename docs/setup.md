@@ -51,13 +51,11 @@ Google should provide a Client ID and Client Secret on the next screen. Save the
 
 Depending on whether your blog is a network or single site, input the Client Secret and Client ID on the appropriate options page.
 
-__Network__
+ > ___For Networks:___ If you are the Site Administor of a network, paste the values from step one into the Network Options page for the Analytic Bridge.
 
-If you are the Site Administor of a network, paste the values from step one into the __Network__ Options page for the Analytic Bridge.
+or:
 
-__Single Site__
-
-If you do not have a WordPress network install (or are not an administor of your network), enter the values from step one on the options page for the Analytic Bridge (Settings > Analytic Bridge).
+ > ___For Single Sites:___ If you do not have a WordPress network install (or are not an administor of your network), enter the values from step one on the options page for the Analytic Bridge (Settings > Analytic Bridge).
 
 ![Screenshot](img/network-settings.png)
 
