@@ -55,6 +55,8 @@ Class AnalyticBridgeGoogleAnalytics {
 
 		if(count($result) > 0)
 			return $result[0]->value;
+		else 
+			return false;
 
 	}
 
