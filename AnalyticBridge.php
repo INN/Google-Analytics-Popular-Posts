@@ -326,7 +326,9 @@ function query_and_save_analytics($analytics,$startdate,$verbose = false) {
 					$start,
 					"ga:sessions,ga:pageviews,ga:exits,ga:bounceRate,ga:avgSessionDuration,ga:avgTimeOnPage",
 					array( 
-					  "dimensions" => "ga:pagePath"
+					  "dimensions" => "ga:pagePath",
+					  'max-results' => '1000',
+					  'sort' => '-ga:sessions'
 					)
 	); // $ids, $startDate, $endDate, $metrics, $optParams
 
@@ -372,9 +374,10 @@ function query_and_save_analytics($analytics,$startdate,$verbose = false) {
 
 				//
 				// In some cases, two pagepaths might belong to the same post.
-				// examples of this.
+				// We do not count pagepaths that do not match the permalink
+				// of the post.
 				//
-				// This happened to anything in this if statement.
+				// This happened to anything in this if statement clause.
 				// examples include:
 				//
 				//   - /?p=123212
@@ -409,7 +412,7 @@ function query_and_save_analytics($analytics,$startdate,$verbose = false) {
 				// $r[4] - ga:bounceRate
 				// $r[5] - ga:avgSessionDuration
 				// $r[6] - ga:avgTimeOnPage
-	
+
 				// Insert ga:sessions
 				$metricsql .= $wpdb->prepare(
 	
