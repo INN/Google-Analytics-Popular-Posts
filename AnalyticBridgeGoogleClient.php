@@ -46,7 +46,11 @@ function analytic_bridge_google_client($auth = true,&$e = null) {
 	else : 
 
 		// Create a Google Client.
-		$client = new Google_Client();
+
+		$config = new Google_Config();
+		$config->setCacheClass("Google_Cache_Null");
+
+		$client = new Google_Client($config);
 		$client->setApplicationName("Analytic_Bridge");
 		$client->setClientId( analyticbridge_client_id() );
 		$client->setClientSecret( analyticbridge_client_secret() );
