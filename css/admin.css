@@ -1,0 +1,82 @@
+/* google button style */
+
+.google-button {
+	height: 32px;
+	display: table-cell;
+	vertical-align: middle;
+	font-weight: bold;
+	padding: 0px 18px 0 36px;
+	border-radius: 4px;
+	background: #4285f4 url('../img/google-icons.png?v=2');
+	background-size: 32px 64px;
+	background-position: 0 -32px;
+	background-repeat: no-repeat;
+	color: #fff;
+	text-decoration: none;
+	box-shadow: 0 0 2px rgba(0,0,0,.12),0 2px 4px rgba(0,0,0,.24);
+}
+
+a.google-button:hover {
+	color: #fff;
+	background-color: #3266d5;
+	box-shadow: 0 0 4px rgba(0,0,0,.12),0 4px 8px rgba(0,0,0,.24);
+}
+
+.google-button.disabled {
+	background-color: rgba(0,0,0,.08);
+	box-shadow: none;
+	background-position: 0 0px;
+	color: rgba(0,0,0,.7);
+}
+
+/* google chip style */
+
+.google-chip {
+	height: 32px;
+	background: rgba(0,0,0,.08);
+	border-radius: 16px;
+	display: inline-block;
+	clear: both;
+	vertical-align: middle;
+}
+
+.google-chip .google-user-image {
+	width: 32px;
+	height: 32px;
+	display: block;
+	border-radius: 16px;
+	margin-right: -4px;
+	overflow: hidden;
+	float: left;
+}
+
+.google-chip .google-user-image img {
+	width: 32px;
+	height: auto;
+}
+
+.google-chip .google-user-name {
+	height: 32px;
+	display: table-cell;
+	vertical-align: middle;
+	padding: 0 12px;
+
+}
+
+/* google view selector */
+
+@media screen and (min-width: 783px) {
+	
+	#google-view-selector {
+		margin-top: -3px;
+	}
+
+	#google-view-selector tr:first-child td {
+		padding-top: 0;
+	}
+
+	#google-view-selector tr td:first-child {
+		padding-left: 0;
+	}
+
+}

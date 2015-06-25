@@ -1,7 +1,7 @@
 <?php
 
-require_once( plugin_dir_path( __FILE__ ) . 'AnalyticBridgeGoogleClient.php');
-require_once( plugin_dir_path( __FILE__ ) . 'AnalyticBridge.php');
+require_once( plugin_dir_path( __FILE__ ) . '../AnalyticBridgeGoogleClient.php');
+require_once( plugin_dir_path( __FILE__ ) . '../analytic-bridge.php');
 
 
 /** 
@@ -28,7 +28,6 @@ function analyticbridge_network_plugin_menu() {
 
 }
 add_action( 'network_admin_menu', 'analyticbridge_network_plugin_menu' );
-
 
 /**
  * Output the html for the *network* option page.
