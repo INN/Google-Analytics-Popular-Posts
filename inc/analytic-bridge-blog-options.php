@@ -304,7 +304,7 @@ function analyticbridge_register_options() {
 	// Add property field
 	add_settings_field(
 		'analyticbridge_setting_popular_posts_halflife',
-		'Post halflife',
+		'Post halflife (in days)',
 		'analyticbridge_setting_popular_posts_halflife_input',
 		'analytic-bridge',
 		'largo_anaytic_bridge_popular_posts_settings_section'
@@ -345,7 +345,8 @@ function largo_anaytic_bridge_account_settings_section_intro() {
  * @since v0.1
  */
 function largo_anaytic_bridge_popular_posts_settings_section_intro() {
-	echo '<p>Enter the half life that popular post pageview weight should degrade by.</p>';
+	echo '<p>The post halflife is a measure of how long more-popular posts should remain in the popular posts list.</p>';
+	echo '<p>For example, with a half-life setting of 14 days, a post that is two weeks old and has 200 views in the last 24 hours will be as valuable as a post that is 1 day old and has 100 views in the last 24 hours.</p>';
 }
  
 
