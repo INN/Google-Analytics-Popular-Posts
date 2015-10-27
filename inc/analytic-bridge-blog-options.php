@@ -457,5 +457,5 @@ function analyticbridge_setting_account_profile_id_input() {
  * @since v0.1
  */ 
 function analyticbridge_setting_popular_posts_halflife_input() {
-	echo '<input name="analyticbridge_setting_popular_posts_halflife" id="analyticbridge_setting_popular_posts_halflife" type="text" value="' . get_option('analyticbridge_setting_popular_posts_halflife') . '" class="regular-text" />';
+	echo '<input name="analyticbridge_setting_popular_posts_halflife" id="analyticbridge_setting_popular_posts_halflife" type="number" value="' . get_option('analyticbridge_setting_popular_posts_halflife') . '" class="regular-text" />';
 }
