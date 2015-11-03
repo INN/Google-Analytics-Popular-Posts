@@ -1,6 +1,6 @@
 # Contributing
 
-We welcome contributions and suggestions to help us improve any of these documents. Please start by [reading our contribution guidelines](/how-to-work-with-us/contributing.md).
+We welcome contributions and suggestions to help us improve any of these documents. Please start by [reading our contribution guidelines](https://github.com/INN/docs/blob/master/how-to-work-with-us/contributing.md).
 
 ### Workflow:
 
