@@ -21,11 +21,11 @@ class AnalyticBridge {
 	 */
 	public static function get_instance() {
 	
-	    if ( null == self::$instance ) {
-	        self::$instance = new self;
-	    }
+		if ( null == self::$instance ) {
+			self::$instance = new self;
+		}
 	
-	    return self::$instance;
+		return self::$instance;
 	
 	} // end get_instance;
 	
@@ -53,9 +53,9 @@ class AnalyticBridge {
 	 * @since v0.1
 	 * 
 	 * @param boolean $auth whether we should try to authenticate the client or just set it up 
-	 *        with the right scopes.
+	 *		with the right scopes.
 	 * @param array $e passed by reference. If provided, $e will contain error information 
-	 *        if authentication fails.
+	 *		if authentication fails.
 	 * 
 	 * @return Google_Client object on success, 'false' on failure.
 	 */
@@ -154,9 +154,9 @@ class AnalyticBridge {
  * @since v0.1
  * 
  * @param boolean $auth whether we should try to authenticate the client or just set it up 
- *        with the right scopes.
+ *		with the right scopes.
  * @param array $e passed by reference. If provided, $e will contain error information 
- *        if authentication fails.
+ *		if authentication fails.
  * @return Google_Client object on success, 'false' on failure.
  */
 function analytic_bridge_google_client($auth = true,&$e = null) {

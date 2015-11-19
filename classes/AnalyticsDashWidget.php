@@ -1,10 +1,8 @@
 <?php
-
-
 /**
- * =================================================================================================
  * DASHBOARD WIDGET
- * =================================================================================================
+ *
+ * A widget that is added to the WordPress dashboard to show analytics data.
  */
 
 /**
@@ -15,18 +13,18 @@
 function analyticbridge_add_dashboard_widgets() {
 
 	wp_add_dashboard_widget(
-                 'analyticbridge_popular_posts',         	// Widget slug.
-                 'Popular Posts',         					// Title.
-                 'analyticbridge_popular_posts_widget' 		// Display function.
-        );	
+		 'analyticbridge_popular_posts', // Widget slug.
+		 'Popular Posts', // Title.
+		 'analyticbridge_popular_posts_widget' // Display function.
+	);
 }
 add_action( 'wp_dashboard_setup', 'analyticbridge_add_dashboard_widgets' );
 
 /**
  * Outputs the HTML for the popular post widget.
- * 
+ *
  * An unordered list of 20 popular posts.
- * 
+ *
  * @since 0.1
  */
 function analyticbridge_popular_posts_widget() {

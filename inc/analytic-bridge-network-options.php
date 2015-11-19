@@ -1,7 +1,7 @@
 <?php
-/** 
+/**
  * Network option page.
- * 
+ *
  * @package Analytic Bridge
  */
 
@@ -14,13 +14,13 @@
 function analyticbridge_network_plugin_menu() {
 
 	add_submenu_page(
-       'settings.php',
-       'Analytic Bridge Network Options',
-       'Analytic Bridge',
-       'manage_network_options',
-       'analytic-bridge',
-       'analyticbridge_network_option_page_html'
-  );  
+		'settings.php',
+		'Analytic Bridge Network Options',
+		'Analytic Bridge',
+		'manage_network_options',
+		'analytic-bridge',
+		'analyticbridge_network_option_page_html'
+	);
 
 }
 add_action( 'network_admin_menu', 'analyticbridge_network_plugin_menu' );
@@ -28,13 +28,13 @@ add_action( 'network_admin_menu', 'analyticbridge_network_plugin_menu' );
 
 /**
  * Output the html for the *network* option page.
- * 
+ *
  * @since v0.1
  */
 function analyticbridge_network_option_page_html() {
 
-	if(!current_user_can('manage_network_options')) 
-		wp_die("Sorry, you don't have permission to do this");	
+	if(!current_user_can('manage_network_options'))
+		wp_die("Sorry, you don't have permission to do this");
 	echo '<div class="wrap">';
 	echo '<h2>Network Analytic Bridge Options</h2>';
 	echo '<form action="'. admin_url('admin-post.php?action=network-analytic-bridge-options') .'" method="post">';
@@ -58,10 +58,10 @@ function analyticbridge_network_option_page_html() {
 }
 
 
-function analyticbridge_update_network_options(){     
+function analyticbridge_update_network_options(){
 
 	wp_nonce_field('network_option_page_update');
-	if(!current_user_can('manage_network_options')) 
+	if(!current_user_can('manage_network_options'))
 		wp_die("Sorry, you don't have permission to do this");
 
 	update_site_option('analyticbridge_network_setting_api_client_id',$_POST['analyticbridge_network_setting_api_client_id']);
@@ -69,7 +69,7 @@ function analyticbridge_update_network_options(){
 
 	wp_redirect(admin_url('network/settings.php?page=analytic-bridge'));
 
-	exit;  
+	exit;
 }
 add_action('admin_post_network-analytic-bridge-options',  'analyticbridge_update_network_options');
 

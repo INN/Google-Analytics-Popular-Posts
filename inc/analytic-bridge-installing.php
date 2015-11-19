@@ -11,14 +11,14 @@
  * @since 0.1
  */
 function analyticbridge_plugin_init($networkwide) {
-            
+
 	global $wpdb;
 
 	if (function_exists('is_multisite') && is_multisite()) {
-		
+
 		// check if it is a network activation.
 		if ($networkwide) {
-		
+
 			$old_blog = $wpdb->blogid;
 			// Get all blog ids
 			$blogids = $wpdb->get_col("SELECT blog_id FROM $wpdb->blogs");
@@ -28,9 +28,8 @@ function analyticbridge_plugin_init($networkwide) {
 			}
 			switch_to_blog($old_blog);
 			return;
-		}   
-
-	} 
+		}
+	}
 	_analyticbridge_plugin_init();
 
 }
@@ -39,18 +38,18 @@ register_activation_hook( __FILE__, 'analyticbridge_plugin_init' );
 /**
  * Delegate the actual initalization code to a seperate function.
  * This is called for each blog instance on the network.
- * 
+ *
  * @since 0.1
  */
 function _analyticbridge_plugin_init() {
-	
+
 	/* do not generate any output here. */
 
 	global $wpdb;
-	
+
 	/* our globals aren't going to work because we switched blogs */
-	$metrics_table 	= $wpdb->prefix . "analyticbridge_metrics";
-	$pages_table 	= $wpdb->prefix . "analyticbridge_pages";
+	$metrics_table = $wpdb->prefix . "analyticbridge_metrics";
+	$pages_table = $wpdb->prefix . "analyticbridge_pages";
 
 	/* Run sql to create the proper tables we need. */
 	$result = $wpdb->query("
@@ -100,21 +99,21 @@ function _analyticbridge_plugin_init() {
 
 /**
  * Drop database tables when uninstalling the plugin.
- * 
+ *
  * Calls _analyticbridge_plugin_deinit on each blog in the network.
  * We keep all options intact (including Google API token).
- * 
+ *
  * @since v0.1
  */
 function analyticbridge_plugin_deinit($networkwide) {
-            
+
 	global $wpdb;
 
 	if (function_exists('is_multisite') && is_multisite()) {
-		
+
 		// check if it is a network activation.
 		if ($networkwide) {
-		
+
 			$old_blog = $wpdb->blogid;
 			// Get all blog ids
 			$blogids = $wpdb->get_col("SELECT blog_id FROM $wpdb->blogs");
@@ -124,8 +123,8 @@ function analyticbridge_plugin_deinit($networkwide) {
 			}
 			switch_to_blog($old_blog);
 			return;
-		}   
-	} 
+		}
+	}
 	_analyticbridge_plugin_deinit();
 
 }
@@ -133,13 +132,13 @@ register_deactivation_hook( __FILE__, 'analyticbridge_plugin_deinit' );
 
 /**
  * Called on deinit for each blog in the network.
- * 
+ *
  * @since 0.1
  */
 function _analyticbridge_plugin_deinit() {
 
 	global $wpdb;
-	
+
 	/* our globals aren't going to work because we switched blogs */
 	$metrics_table 	= $wpdb->prefix . "analyticbridge_metrics";
 	$pages_table 	= $wpdb->prefix . "analyticbridge_pages";
@@ -147,20 +146,20 @@ function _analyticbridge_plugin_deinit() {
 	/* Run sql to drop created tables */
 	$result = $wpdb->query("
 
-		--							---
-		--  Drop metrics table 	---
-		--							---
+		--                      ---
+		--  Drop metrics table  ---
+		--                      ---
 
-		DROP TABLE  `" . $metrics_table . "` 
+		DROP TABLE  `" . $metrics_table . "`
 
 	");
 
 	/* Run sql to drop created tables */
 	$result = $wpdb->query("
 
-		--							---
-		--  Drop pages table 	---
-		--							---
+		--                    ---
+		--  Drop pages table  ---
+		--                    ---
 
 		DROP TABLE `" . $pages_table . "` ");
 

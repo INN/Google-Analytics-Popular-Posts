@@ -56,7 +56,7 @@ function new_interval($interval) {
 	$interval['30m'] = array('interval' => 30*60, 'display' => 'Once every 30 minutes');
 	$interval['45m'] = array('interval' => 45*60, 'display' => 'Once every 45 minutes');
 
-    return $interval;
+	return $interval;
 
 }
 add_filter('cron_schedules', 'new_interval');
@@ -120,7 +120,7 @@ function largo_anaylticbridge_cron($verbose = false) {
 
 	// Script end
 	function rutime($ru, $rus, $index) {
-    	return ($ru["ru_$index.tv_sec"]*1000 + intval($ru["ru_$index.tv_usec"]/1000)) - ($rus["ru_$index.tv_sec"]*1000 + intval($rus["ru_$index.tv_usec"]/1000));
+		return ($ru["ru_$index.tv_sec"]*1000 + intval($ru["ru_$index.tv_usec"]/1000)) - ($rus["ru_$index.tv_sec"]*1000 + intval($rus["ru_$index.tv_usec"]/1000));
 	}
 		
 	$ru = getrusage();
@@ -353,8 +353,8 @@ function query_and_save_analytics($analytics,$startdate,$verbose = false) {
 		// on duplicate key update the value and querytime.
 		$metricsql .= " ON DUPLICATE KEY UPDATE `id`=LAST_INSERT_ID(id),`querytime`=values(querytime),`value`=values(value)";
 
-    	$wpdb->query( $pagesql );
-    	$wpdb->query( $metricsql );
+		$wpdb->query( $pagesql );
+		$wpdb->query( $metricsql );
 
 	// Catch mysql exception. TODO: catch only mysql exceptions.
 	} catch(Exception $e) {

@@ -6,7 +6,7 @@ require_once( plugin_dir_path( __FILE__ ) . '../analytic-bridge.php');
 
 /** 
  * ================================================================================================
- *     #region: network option page.
+ *	 #region: network option page.
  * ================================================================================================
  */
 
@@ -18,13 +18,13 @@ require_once( plugin_dir_path( __FILE__ ) . '../analytic-bridge.php');
 function analyticbridge_network_plugin_menu() {
 
 	add_submenu_page(
-       'settings.php',
-       'Analytic Bridge Network Options',
-       'Analytic Bridge',
-       'manage_network_options',
-       'analytic-bridge',
-       'analyticbridge_network_option_page_html'
-  );  
+		'settings.php',
+		'Analytic Bridge Network Options',
+		'Analytic Bridge',
+		'manage_network_options',
+		'analytic-bridge',
+		'analyticbridge_network_option_page_html'
+	);
 
 }
 add_action( 'network_admin_menu', 'analyticbridge_network_plugin_menu' );
@@ -37,7 +37,7 @@ add_action( 'network_admin_menu', 'analyticbridge_network_plugin_menu' );
 function analyticbridge_network_option_page_html() {
 
 	if(!current_user_can('manage_network_options')) 
-		wp_die("Sorry, you don't have permission to do this");	
+		wp_die("Sorry, you don't have permission to do this");
 	echo '<div class="wrap">';
 	echo '<h2>Network Analytic Bridge Options</h2>';
 	echo '<form action="'. admin_url('admin-post.php?action=network-analytic-bridge-options') .'" method="post">';
@@ -61,10 +61,10 @@ function analyticbridge_network_option_page_html() {
 }
 
 
-function analyticbridge_update_network_options(){     
+function analyticbridge_update_network_options(){
 
 	wp_nonce_field('network_option_page_update');
-	if(!current_user_can('manage_network_options')) 
+	if(!current_user_can('manage_network_options'))
 		wp_die("Sorry, you don't have permission to do this");
 
 	update_site_option('analyticbridge_network_setting_api_client_id',$_POST['analyticbridge_network_setting_api_client_id']);
@@ -72,14 +72,14 @@ function analyticbridge_update_network_options(){
 
 	wp_redirect(admin_url('network/settings.php?page=analytic-bridge'));
 
-	exit;  
+	exit;
 }
 add_action('admin_post_network-analytic-bridge-options',  'analyticbridge_update_network_options');
 
 
 /** 
  * ================================================================================================
- *     #region: blog option page(s).
+ *	 #region: blog option page(s).
  * ================================================================================================
  */
 
@@ -90,7 +90,7 @@ add_action('admin_post_network-analytic-bridge-options',  'analyticbridge_update
  * @since v0.1
  */
 function analyticbridge_plugin_menu() {
-	add_options_page( 
+	add_options_page(
 		'Analytic Bridge Options', 					// $page_title title of the page.
 		'Analytic Bridge', 							// $menu_title the text to be used for the menu.
 		'manage_options', 							// $capability required capability for display.

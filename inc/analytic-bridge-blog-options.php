@@ -55,16 +55,16 @@ function analyticbridge_blog_options_admin_head() {
 	  var CLIENT_ID = '<?php echo analyticbridge_client_id() ?>';
 	
 	  gapi.analytics.auth.authorize({
-	    container: 'auth-button',
-	    clientid: CLIENT_ID,
-	    serverAuth: {
-	    	<?php
+		container: 'auth-button',
+		clientid: CLIENT_ID,
+		serverAuth: {
+			<?php
 
 			$accessToken = json_decode( get_option('analyticbridge_access_token') );
 
-	    	?>
+			?>
 			access_token: '<?php echo $accessToken->access_token;?>',
-	    }
+		}
 	  });
 	
 	// 2: Create the view selector.
