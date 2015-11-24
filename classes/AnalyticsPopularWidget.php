@@ -113,7 +113,11 @@ class AnalyticBridgePopularPostWidget extends WP_Widget {
 		} // end more featured posts
 
 		// close the ul if we're just showing a list of headlines
-		if ($excerpt == 'none') echo '</ol>';
+		if ($excerpt == 'none') {
+			echo '</ul>';
+		} else {
+			echo '</ol>';
+		}
 
 		echo $after_widget;
 
