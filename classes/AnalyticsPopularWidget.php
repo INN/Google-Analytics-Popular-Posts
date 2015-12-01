@@ -60,12 +60,11 @@ class AnalyticBridgePopularPostWidget extends WP_Widget {
 		$thumb = isset( $instance['thumbnail_display'] ) ? $instance['thumbnail_display'] : 'small';
 		$olul =  isset( $instance['olul'] ) ? $instance['olul'] : 'ul';
 
-		// if we're just showing a list of headlines, wrap the elements in a ul
-		if ($olul == 'ul') {
-			echo '<ul>';
-		} else {
-			echo '<ol>';
-		}
+		// Start the list
+		echo sprintf( '<%s class="count-%d">',
+			$olul,
+			$instance['num_posts']
+		);
 		
 		$this->popPosts = new AnayticBridgePopularPosts();
 		$this->popPosts->size = $instance['num_posts'];
