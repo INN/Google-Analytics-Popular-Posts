@@ -136,13 +136,9 @@ class AnalyticBridgePopularPostWidget extends WP_Widget {
 		$defaults = array(
 			'title' 			=> __('Recent ' . of_get_option( 'posts_term_plural', 'Posts' ), 'largo'),
 			'num_posts' 		=> 5,
-			'linktext' 			=> '',
-			'linkurl' 			=> '',
 			'olul' => 'ol'
 		);
 		$instance = wp_parse_args( (array) $instance, $defaults );
-		$duplicates = $instance['avoid_duplicates'] ? 'checked="checked"' : '';
-		$showreadmore = $instance['show_read_more'] ? 'checked="checked"' : '';
 		$olul =  isset( $instance['olul'] ) ? $instance['olul'] : 'ul';
 		?>
 
@@ -163,18 +159,6 @@ class AnalyticBridgePopularPostWidget extends WP_Widget {
 				<option <?php selected( $instance['olul'], 'ol'); ?> value="ol"><?php _e('Ordered list', 'largo'); ?></option>
 			</select>
 		</p>
-
-		<p><strong><?php _e('More Link', 'largo'); ?></strong><br /><small><?php _e('If you would like to add a more link at the bottom of the widget, add the link text and url here.', 'largo'); ?></small></p>
-		<p>
-			<label for="<?php echo $this->get_field_id('linktext'); ?>"><?php _e('Link text:', 'largo'); ?></label>
-			<input class="widefat" id="<?php echo $this->get_field_id('linktext'); ?>" name="<?php echo $this->get_field_name('linktext'); ?>" type="text" value="<?php echo esc_attr( $instance['linktext'] ); ?>" />
-		</p>
-
-		<p>
-			<label for="<?php echo $this->get_field_id('linkurl'); ?>"><?php _e('URL:', 'largo'); ?></label>
-			<input class="widefat" id="<?php echo $this->get_field_id('linkurl'); ?>" name="<?php echo $this->get_field_name('linkurl'); ?>" type="text" value="<?php echo esc_attr( $instance['linkurl'] ); ?>" />
-		</p>
-
 	<?php
 	}
 
@@ -188,9 +172,7 @@ class AnalyticBridgePopularPostWidget extends WP_Widget {
 		$instance = $old_instance;
 		$instance['title'] = sanitize_text_field( $new_instance['title'] );
 		$instance['num_posts'] = intval( $new_instance['num_posts'] );
-		$instance['linktext'] = sanitize_text_field( $new_instance['linktext'] );
 		$instance['olul'] = sanitize_text_field( $new_instance['olul'] );
-		$instance['linkurl'] = esc_url_raw( $new_instance['linkurl'] );
 		return $instance;
 	}
 
