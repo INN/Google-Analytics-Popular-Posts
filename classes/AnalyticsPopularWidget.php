@@ -58,7 +58,6 @@ class AnalyticBridgePopularPostWidget extends WP_Widget {
 		}
 
 		$thumb = isset( $instance['thumbnail_display'] ) ? $instance['thumbnail_display'] : 'small';
-		$excerpt = isset( $instance['excerpt_display'] ) ? $instance['excerpt_display'] : 'num_sentences';
 		$olul =  isset( $instance['olul'] ) ? $instance['olul'] : 'ul';
 
 		// if we're just showing a list of headlines, wrap the elements in a ul
