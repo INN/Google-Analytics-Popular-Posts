@@ -59,9 +59,10 @@ class AnalyticBridgePopularPostWidget extends WP_Widget {
 
 		$thumb = isset( $instance['thumbnail_display'] ) ? $instance['thumbnail_display'] : 'small';
 		$excerpt = isset( $instance['excerpt_display'] ) ? $instance['excerpt_display'] : 'num_sentences';
+		$olul =  isset( $instance['olul'] ) ? $instance['olul'] : 'ul';
 
 		// if we're just showing a list of headlines, wrap the elements in a ul
-		if ($excerpt == 'none') {
+		if ($olul == 'ul') {
 			echo '<ul>';
 		} else {
 			echo '<ol>';
@@ -113,7 +114,7 @@ class AnalyticBridgePopularPostWidget extends WP_Widget {
 		} // end more featured posts
 
 		// close the ul if we're just showing a list of headlines
-		if ($excerpt == 'none') {
+		if ($olul == 'ul') {
 			echo '</ul>';
 		} else {
 			echo '</ol>';
@@ -136,11 +137,13 @@ class AnalyticBridgePopularPostWidget extends WP_Widget {
 			'title' 			=> __('Recent ' . of_get_option( 'posts_term_plural', 'Posts' ), 'largo'),
 			'num_posts' 		=> 5,
 			'linktext' 			=> '',
-			'linkurl' 			=> ''
+			'linkurl' 			=> '',
+			'olul' => 'ol'
 		);
 		$instance = wp_parse_args( (array) $instance, $defaults );
 		$duplicates = $instance['avoid_duplicates'] ? 'checked="checked"' : '';
 		$showreadmore = $instance['show_read_more'] ? 'checked="checked"' : '';
+		$olul =  isset( $instance['olul'] ) ? $instance['olul'] : 'ul';
 		?>
 
 		<p>
@@ -150,7 +153,15 @@ class AnalyticBridgePopularPostWidget extends WP_Widget {
 
 		<p>
 			<label for="<?php echo $this->get_field_id( 'num_posts' ); ?>"><?php _e('Number of posts to show:', 'largo'); ?></label>
-			<input id="<?php echo $this->get_field_id( 'num_posts' ); ?>" name="<?php echo $this->get_field_name( 'num_posts' ); ?>" value="<?php echo $instance['num_posts']; ?>" style="width:90%;" />
+			<input id="<?php echo $this->get_field_id( 'num_posts' ); ?>" name="<?php echo $this->get_field_name( 'num_posts' ); ?>" value="<?php echo $instance['num_posts']; ?>" style="width:90%;" type="number"/>
+		</p>
+
+		<p>
+			<label for="<?php echo $this->get_field_id( 'olul' ); ?>"><?php _e('Display as an ordered list (with numbers) or as an unordered list?', 'largo'); ?></label>
+			<select id="<?php echo $this->get_field_id( 'olul' ); ?>" name="<?php echo $this->get_field_name( 'olul' ); ?>" class="widefat">
+				<option <?php selected( $instance['olul'], 'ul'); ?> value="ul"><?php _e('Unordered list', 'largo'); ?></option>
+				<option <?php selected( $instance['olul'], 'ol'); ?> value="ol"><?php _e('Ordered list', 'largo'); ?></option>
+			</select>
 		</p>
 
 		<p><strong><?php _e('More Link', 'largo'); ?></strong><br /><small><?php _e('If you would like to add a more link at the bottom of the widget, add the link text and url here.', 'largo'); ?></small></p>
@@ -178,6 +189,7 @@ class AnalyticBridgePopularPostWidget extends WP_Widget {
 		$instance['title'] = sanitize_text_field( $new_instance['title'] );
 		$instance['num_posts'] = intval( $new_instance['num_posts'] );
 		$instance['linktext'] = sanitize_text_field( $new_instance['linktext'] );
+		$instance['olul'] = sanitize_text_field( $new_instance['olul'] );
 		$instance['linkurl'] = esc_url_raw( $new_instance['linkurl'] );
 		return $instance;
 	}
