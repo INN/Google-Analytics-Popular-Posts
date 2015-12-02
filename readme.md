@@ -2,6 +2,11 @@
 
 **_Warning:_** this plugin is under active development. Updating to new versions might require reactivating to rebuild database tables, as there is currently no upgrading framework.
 
+## Documentation
+
+- [Index](docs/index.md)
+- [Setup](docs/setup.md)
+
 ## Questions
 
 ###### _How does this differ from other WordPress popular post plugins?_
