@@ -1,0 +1,13 @@
+.widget.widget_analytic-bridge-popular-posts img.right-align,
+.widget.widget_analytic-bridge-popular-posts img.center-align,
+.widget.widget_analytic-bridge-popular-posts img.left-align {
+  float: none;
+  padding: inherit;
+}
+.widget_analytic-bridge-popular-posts img.attachment-thumbnail {
+  float: right;
+}
+.widget_analytic-bridge-popular-posts li.has-post-thumbnail {
+  float: right;
+  margin: 0 0 10px 20px;
+}

@@ -22,9 +22,12 @@ class AnalyticBridgePopularPostWidget extends WP_Widget {
 		parent::__construct(
 			'analytic-bridge-popular-posts', // Base ID
 			__( 'Analytic Bridge Popular Posts', 'analytic-bridge' ), // Name
-			array( 'description' => __( 'List popular posts', 'analytic-bridge' ), ) // Args
+			arra( 'description' => __( 'List popular posts', 'analytic-bridge' ), ) // Args
 		);
 		// widget actual processes
+		if(is_active_widget(false, false, $this->id_base)) {
+			wp_enqueue_style( "abp-popular-posts-widget", plugins_url("css/abp-popular-posts-widget.css", __DIR__), "largo-stylesheet" );
+		}
 	}
 
 	/**
@@ -57,7 +60,8 @@ class AnalyticBridgePopularPostWidget extends WP_Widget {
 			echo $before_title . $title . $after_title;
 		}
 
-		$thumb = isset( $instance['thumbnail_display'] ) ? $instance['thumbnail_display'] : 'small';
+		$thumb = isset( $instance['thumbnail_display'] ) ? $instance['thumbnail_display'] : 'none';
+		var_log($thumb);
 		$olul =  isset( $instance['olul'] ) ? $instance['olul'] : 'ul';
 
 		// Start the list
@@ -89,12 +93,34 @@ class AnalyticBridgePopularPostWidget extends WP_Widget {
 				$shown_ids[] = get_the_ID();
 
 				// wrap the items in li's.
-				$output .= '<li>';
+				$classes = join(' ', get_post_class());
+				$output .= '<li class="' . $classes . '">';
 
 				// The top term
 				$top_term_args = array('echo' => false);
 				if ( isset($instance['show_top_term']) && $instance['show_top_term'] == 1 && largo_has_categories_or_tags() ) {
 					$output .= '<h5 class="top-tag">' . largo_top_term($top_term_args) . '</h5>' ;
+				}
+
+				// Compatibility with Largo's video thumbnail styles, see https://github.com/INN/Largo/issues/836
+				$hero_class = '';
+				if (function_exists("largo_hero_class")) {
+					$hero_class = largo_hero_class(get_the_ID(), false);
+					$output .= '<div class="'. $hero_class . '">';
+				}
+				// the thumbnail image (if we're using one)
+				if ($thumb == 'medium') {
+					$img_location = $instance['image_align'] != '' ? $instance['image_align'] : 'left';
+					$img_attr = array('class' => $img_location . '-align');
+					$img_attr['class'] .= " attachment-thumbnail";
+					$output .= '<a href="' . get_permalink() . '" >' . get_the_post_thumbnail( get_the_ID(), 'post-thumbnail', $img_attr) . "</a>";
+				} elseif ($thumb == 'large') {
+					$img_attr = array();
+					$img_attr['class'] .= " attachment-large";
+					$output .= '<a href="' . get_permalink() . '" >' . get_the_post_thumbnail( get_the_ID(), 'large', $img_attr) . "</a>";
+				}
+				if (function_exists("largo_hero_class")) {
+					$output .= '</div>';
 				}
 
 				// the headline
@@ -134,7 +160,8 @@ class AnalyticBridgePopularPostWidget extends WP_Widget {
 		$defaults = array(
 			'title' 			=> __('Recent ' . of_get_option( 'posts_term_plural', 'Posts' ), 'largo'),
 			'num_posts' 		=> 5,
-			'olul' => 'ol'
+			'olul' => 'ol',
+			'thumbnail_display' => 'none',
 		);
 		$instance = wp_parse_args( (array) $instance, $defaults );
 		$olul =  isset( $instance['olul'] ) ? $instance['olul'] : 'ul';
@@ -148,6 +175,15 @@ class AnalyticBridgePopularPostWidget extends WP_Widget {
 		<p>
 			<label for="<?php echo $this->get_field_id( 'num_posts' ); ?>"><?php _e('Number of posts to show:', 'largo'); ?></label>
 			<input id="<?php echo $this->get_field_id( 'num_posts' ); ?>" name="<?php echo $this->get_field_name( 'num_posts' ); ?>" value="<?php echo $instance['num_posts']; ?>" style="width:90%;" type="number"/>
+		</p>
+
+		<p>
+			<label for="<?php echo $this->get_field_id( 'thumbnail_display' ); ?>"><?php _e('Thumbnail Image', 'largo'); ?></label>
+			<select id="<?php echo $this->get_field_id('thumbnail_display'); ?>" name="<?php echo $this->get_field_name('thumbnail_display'); ?>" class="widefat" style="width:90%;">
+				<option <?php selected( $instance['thumbnail_display'], 'medium'); ?> value="medium"><?php _e('Medium (140x140)', 'largo'); ?></option>
+				<option <?php selected( $instance['thumbnail_display'], 'large'); ?> value="large"><?php _e('Large (Full width of the widget)', 'largo'); ?></option>
+				<option <?php selected( $instance['thumbnail_display'], 'none'); ?> value="none"><?php _e('None', 'largo'); ?></option>
+			</select>
 		</p>
 
 		<p>
@@ -171,6 +207,7 @@ class AnalyticBridgePopularPostWidget extends WP_Widget {
 		$instance['title'] = sanitize_text_field( $new_instance['title'] );
 		$instance['num_posts'] = intval( $new_instance['num_posts'] );
 		$instance['olul'] = sanitize_text_field( $new_instance['olul'] );
+		$instance['thumbnail_display'] = sanitize_key( $new_instance['thumbnail_display'] );
 		return $instance;
 	}
 
