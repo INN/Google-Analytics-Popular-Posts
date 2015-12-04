@@ -47,6 +47,22 @@ class AnalyticBridgePopularPostWidget extends WP_Widget {
 
 		$posts_term = of_get_option( 'posts_term_plural', 'Posts' );
 
+		/**
+		 * Filter the Analytics Bridge Plugin widget $args and $instance variables on page generation time.
+		 *
+		 * If you would like to ensure than an Analytics Popular Posts widget placed in a particular zone always displays certain options, this is how.
+		 * When adding your filter, be sure to specify that the filter accepts 2 arguments:
+		 *
+		 *     add_action('abp-widget-force-unsaved-options', 'largo_filter_abp_article_bottom', 10, 2);
+		 *                                                                                           ^
+		 *
+		 * @filter
+		 * @link https://github.com/INN/analytic-bridge/issues/13
+		 * @param array $instance this particular widget's settings
+		 * @param array $args the widget arguments
+		 */
+		$instance = apply_filters('abp-widget-force-unsaved-options', $instance, $args);
+
 		extract( $args );
 
 		$title = apply_filters('widget_title', empty( $instance['title'] ) ? __('Recent ' . $posts_term, 'largo') : $instance['title'], $instance, $this->id_base);
@@ -61,7 +77,6 @@ class AnalyticBridgePopularPostWidget extends WP_Widget {
 		}
 
 		$thumb = isset( $instance['thumbnail_display'] ) ? $instance['thumbnail_display'] : 'none';
-		var_log($thumb);
 		$olul =  isset( $instance['olul'] ) ? $instance['olul'] : 'ul';
 
 		// Start the list
@@ -193,6 +208,16 @@ class AnalyticBridgePopularPostWidget extends WP_Widget {
 				<option <?php selected( $instance['olul'], 'ol'); ?> value="ol"><?php _e('Ordered list', 'largo'); ?></option>
 			</select>
 		</p>
+
+		<?php
+			if ( function_exists('largo_filter_abp_article_bottom') ) {
+				?>
+		<p>
+			<b>Note:</b> This widget in the "Article Bottom" widget area will force the display of thumbnails and will force the number of posts to three, regardless of the settings here.
+		</p>
+				<?php
+			}
+		?>
 	<?php
 	}
 
