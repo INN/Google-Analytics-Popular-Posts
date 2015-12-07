@@ -119,7 +119,7 @@ class AnalyticBridgePopularPostWidget extends WP_Widget {
 
 				// Compatibility with Largo's video thumbnail styles, see https://github.com/INN/Largo/issues/836
 				$hero_class = '';
-				if (function_exists("largo_hero_class")) {
+				if (function_exists("largo_hero_class") && $thumb != 'none') {
 					$hero_class = largo_hero_class(get_the_ID(), false);
 					$output .= '<div class="'. $hero_class . '">';
 				}
@@ -134,7 +134,7 @@ class AnalyticBridgePopularPostWidget extends WP_Widget {
 					$img_attr['class'] .= " attachment-large";
 					$output .= '<a href="' . get_permalink() . '" >' . get_the_post_thumbnail( get_the_ID(), 'large', $img_attr) . "</a>";
 				}
-				if (function_exists("largo_hero_class")) {
+				if (function_exists("largo_hero_class") && $thumb != 'none') {
 					$output .= '</div>';
 				}
 
