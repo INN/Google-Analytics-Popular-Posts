@@ -174,9 +174,9 @@ class AnalyticBridgePopularPostWidget extends WP_Widget {
 	public function form( $instance ) {
 		$defaults = array(
 			'title' 			=> __('Recent ' . of_get_option( 'posts_term_plural', 'Posts' ), 'largo'),
-			'num_posts' 		=> 5,
+			'num_posts' 		=> 3,
 			'olul' => 'ol',
-			'thumbnail_display' => 'none',
+			'thumbnail_display' => 'medium',
 		);
 		$instance = wp_parse_args( (array) $instance, $defaults );
 		$olul =  isset( $instance['olul'] ) ? $instance['olul'] : 'ul';
