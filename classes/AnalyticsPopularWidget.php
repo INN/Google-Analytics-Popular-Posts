@@ -84,7 +84,7 @@ class AnalyticBridgePopularPostWidget extends WP_Widget {
 			$olul,
 			$instance['num_posts']
 		);
-		
+
 		$this->popPosts = new AnayticBridgePopularPosts();
 		$this->popPosts->size = $instance['num_posts'];
 		$this->popPosts->query();
@@ -173,8 +173,8 @@ class AnalyticBridgePopularPostWidget extends WP_Widget {
 	 */
 	public function form( $instance ) {
 		$defaults = array(
-			'title' 			=> __('Recent ' . of_get_option( 'posts_term_plural', 'Posts' ), 'largo'),
-			'num_posts' 		=> 3,
+			'title' => __('Recent ' . of_get_option( 'posts_term_plural', 'Posts' ), 'largo'),
+			'num_posts' => 3,
 			'olul' => 'ol',
 			'thumbnail_display' => 'medium',
 		);

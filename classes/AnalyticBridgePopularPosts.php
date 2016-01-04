@@ -25,42 +25,33 @@ Class AnayticBridgePopularPosts implements Iterator {
 	private $interval;
 
 	public function __construct() {
-
 		$this->position = 0;
 		$this->queried = false;
 		$this->halflife = get_option('analyticbridge_setting_popular_posts_halflife');
 		$this->size = 20;
 		$this->initalized = true;
-
 	}
 
 	public function query() {
 
 		global $wpdb;
 
-		if($this->initalized) :
+		if ($this->initalized) {
 
 			// 1: Calculate a ratio coeffient
 			$tday = new DateTime('today',new DateTimeZone('America/Chicago'));
 			$now = new DateTime('',new DateTimeZone('America/Chicago'));
-
 			$interval = $tday->diff($now);
-
 			$minutes = $interval->h * 60 + $interval->i;
-
 			$ratio = $minutes / (24*60);
 
 			/* sql statement that pulls todays sessions, yesterdays 		*/
 			/* sessions and a weighted average of them from the database.	*/
-
 			$this->result = $wpdb->get_results("
-
 				--							---
 				--  SELECT POPULAR POSTS 	---
 				--							---
-
 				SELECT
-
 					pg.pagepath AS pagepath,
 					pg.id AS page_id,
 					pst.id AS post_id,
@@ -87,83 +78,52 @@ Class AnayticBridgePopularPosts implements Iterator {
 							( TIMESTAMPDIFF( hour, pst.post_date, NOW() ) - 1 ) / ($this->halflife * 24)
 						)
 					) AS `weighted_pageviews`
-
 				FROM
-
 					`" . PAGES_TABLE . "` as `pg`
-
 				LEFT JOIN (
-
 					--
 					-- Nested select returns today's sessions.
 					--
-
 					SELECT
-
 						CAST(value as unsigned) as `sessions`,
 						page_id
-
 					FROM
-
 						`" . METRICS_TABLE . "` as m
-					
 					WHERE
-
 						m.metric = 'ga:pageviews'
-
 					AND
-
-						m.startdate >= CURDATE() 
-
+						m.startdate >= CURDATE()
 				) as `t` ON pg.id = t.page_id
 
 				LEFT JOIN (
-
 					--
 					-- Nested select returns yesterday's sessions.
 					--
-
 					SELECT
-
 						CAST(value as unsigned) as `sessions`,
 						`page_id`
-
 					FROM
-
 						`" . METRICS_TABLE . "` as m
-
 					WHERE
-
 						m.metric = 'ga:pageviews'
-
 					AND
-
 						m.startdate >= CURDATE() - 1
-
 					AND
-
 						m.enddate < CURDATE()
-
 				) as `y` ON `pg`.`id` = `y`.`page_id`
 
 				LEFT JOIN `" . $wpdb->prefix . "posts` as `pst`
-
 					ON `pst`.`id` = `pg`.`post_id`
 
 				-- For now, they must be posts.
-
 				WHERE `pst`.`post_type` = 'post'
-
 					ORDER BY `weighted_pageviews` DESC
 					LIMIT $this->size
-
 			");
 
 			$this->queried = true;
 			$this->setIds();
-
-		endif;
-
+		}
 	}
 
 	/**
