@@ -11,7 +11,6 @@
  * @since 0.1
  */
 function analyticbridge_plugin_init($networkwide) {
-
 	global $wpdb;
 
 	if (function_exists('is_multisite') && is_multisite()) {
@@ -33,7 +32,7 @@ function analyticbridge_plugin_init($networkwide) {
 	_analyticbridge_plugin_init();
 
 }
-register_activation_hook( __FILE__, 'analyticbridge_plugin_init' );
+register_activation_hook( dirname( __DIR__ ) . '/analytic-bridge.php', 'analyticbridge_plugin_init' );
 
 /**
  * Delegate the actual initalization code to a seperate function.
@@ -94,7 +93,6 @@ function _analyticbridge_plugin_init() {
 	wp_schedule_event( time(), '10m', 'analyticbridge_hourly_cron');
 
 	update_option('analyticbridge_setting_popular_posts_halflife',14);
-
 }
 
 /**
