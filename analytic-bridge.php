@@ -168,7 +168,7 @@ function query_and_save_analytics($analytics, $startdate, $verbose=false) {
 	try {
 		// Begin our sql statement.
 		$pagesql = "INSERT INTO `" . PAGES_TABLE . "` (pagepath, post_id) VALUES \n";
-		$metricsql = "INSERT INTO `" . METRICS_TABLE . "` (page_id,startdate,enddate,querytime,metric,value) VALUES \n";
+		$metricsql = "INSERT INTO `" . METRICS_TABLE . "` (page_id, startdate, enddate, querytime, metric, value) VALUES \n";
 
 		// caching iterator contains hasNext() functionality.
 		$iter = new CachingIterator( new ArrayIterator( $report->rows ) );
