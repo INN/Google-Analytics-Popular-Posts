@@ -43,7 +43,8 @@ class AnalyticBridgePopularPostWidget extends WP_Widget {
 	 */
 	function widget( $args, $instance ) {
 
-		global $shown_ids; // an array of post IDs already on a page so we can avoid duplicating posts
+		global $shown_ids, $post; // an array of post IDs already on a page so we can avoid duplicating posts
+		$preserve = $post;
 
 		$posts_term = of_get_option( 'posts_term_plural', 'Posts' );
 
