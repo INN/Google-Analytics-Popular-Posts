@@ -124,12 +124,7 @@ class AnalyticBridgePopularPostWidget extends WP_Widget {
 					$output .= '<div class="'. $hero_class . '">';
 				}
 				// the thumbnail image (if we're using one)
-				if ($thumb == 'medium') {
-					$img_location = $instance['image_align'] != '' ? $instance['image_align'] : 'left';
-					$img_attr = array('class' => $img_location . '-align');
-					$img_attr['class'] .= " attachment-thumbnail";
-					$output .= '<a href="' . get_permalink() . '" >' . get_the_post_thumbnail( get_the_ID(), 'post-thumbnail', $img_attr) . "</a>";
-				} elseif ($thumb == 'large') {
+				if ($thumb == 'large') {
 					$img_attr = array();
 					$img_attr['class'] .= " attachment-large";
 					$output .= '<a href="' . get_permalink() . '" >' . get_the_post_thumbnail( get_the_ID(), 'large', $img_attr) . "</a>";
@@ -195,7 +190,6 @@ class AnalyticBridgePopularPostWidget extends WP_Widget {
 		<p>
 			<label for="<?php echo $this->get_field_id( 'thumbnail_display' ); ?>"><?php _e('Thumbnail Image', 'largo'); ?></label>
 			<select id="<?php echo $this->get_field_id('thumbnail_display'); ?>" name="<?php echo $this->get_field_name('thumbnail_display'); ?>" class="widefat" style="width:90%;">
-				<option <?php selected( $instance['thumbnail_display'], 'medium'); ?> value="medium"><?php _e('Medium (140x140)', 'largo'); ?></option>
 				<option <?php selected( $instance['thumbnail_display'], 'large'); ?> value="large"><?php _e('Large (Full width of the widget)', 'largo'); ?></option>
 				<option <?php selected( $instance['thumbnail_display'], 'none'); ?> value="none"><?php _e('None', 'largo'); ?></option>
 			</select>
