@@ -5,7 +5,6 @@
  * @package Analytic Bridge
  */
 
-
 /**
  * Register *network* option page for the Analytic Bridge.
  *
@@ -24,7 +23,6 @@ function analyticbridge_network_plugin_menu() {
 
 }
 add_action( 'network_admin_menu', 'analyticbridge_network_plugin_menu' );
-
 
 /**
  * Output the html for the *network* option page.
@@ -56,7 +54,6 @@ function analyticbridge_network_option_page_html() {
 	echo '</div>'; // div.wrap
 
 }
-
 
 function analyticbridge_update_network_options(){
 

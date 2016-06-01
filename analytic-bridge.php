@@ -112,8 +112,9 @@ function largo_anaylticbridge_cron($verbose = false) {
 
 	$analytics = new Analytic_Bridge_Service($client);
 
-	query_and_save_analytics($analytics,"today",$verbose);
-	query_and_save_analytics($analytics,"yesterday",$verbose);
+	query_and_save_analytics( $analytics, "today", $verbose );
+	query_and_save_analytics( $analytics, "yesterday", $verbose );
+	purge_old_analytics();
 
 	if($verbose) echo("Analytic Bridge cron executed successfully\n");
 	if($verbose) echo("\nEnd analyticbridge_cron\n");
@@ -127,9 +128,7 @@ function largo_anaylticbridge_cron($verbose = false) {
 	if($verbose) echo "\nThis process used " . rutime($ru, $rustart, "utime") . " ms for its computations\n";
 	if($verbose) echo "It spent " . rutime($ru, $rustart, "stime") . " ms in system calls\n";
 
-
 	return;
-
 }
 add_action( 'analyticbridge_hourly_cron', 'largo_anaylticbridge_cron' );
 
@@ -141,7 +140,7 @@ add_action( 'analyticbridge_hourly_cron', 'largo_anaylticbridge_cron' );
  *
  * @param boolean $verbose whether we should print while we do it.
  */
-function query_and_save_analytics($analytics,$startdate,$verbose = false) {
+function query_and_save_analytics($analytics, $startdate, $verbose=false) {
 
 	global $wpdb;
 
@@ -189,8 +188,7 @@ function query_and_save_analytics($analytics,$startdate,$verbose = false) {
 		// caching iterator contains hasNext() functionality.
 		$iter = new CachingIterator(new ArrayIterator($report->rows));
 
-		foreach($iter as $r) :
-
+		foreach ($iter as $r) {
 			// $r[0] - pagePath
 			$gapath = $r[0];
 
@@ -200,8 +198,12 @@ function query_and_save_analytics($analytics,$startdate,$verbose = false) {
 			// try to determine the $postid.
 			$postid = url_to_postid( $wpurl );
 
+			// if the $postid is 0, url_to_postid failed. skip importing data for this page.
+			if ( $postid == 0 ) {
+				continue;
+			}
 
-			if( $postid && (get_permalink($postid) != $wpurl) ) {
+			if ( $postid && (get_permalink($postid) != $wpurl) ) {
 
 				//
 				// In some cases, two pagepaths might belong to the same post.
@@ -244,22 +246,6 @@ function query_and_save_analytics($analytics,$startdate,$verbose = false) {
 				// $r[5] - ga:avgSessionDuration
 				// $r[6] - ga:avgTimeOnPage
 
-				// Insert ga:sessions
-				$metricsql .= $wpdb->prepare(
-
-						"(
-							(SELECT `id` from " . PAGES_TABLE . " WHERE `pagepath`=%s),
-							%s,
-							%s,
-							%s,
-							%s,
-							%s)
-						", $r[0], date_format($tstart, 'Y-m-d'), date_format($tend, 'Y-m-d'), date_format($qTime, 'Y-m-d H:i:s'), 'ga:sessions', $r[1], $r[1]
-
-					);
-
-				$metricsql .= ", \n";
-
 				// Insert ga:pageviews
 				$metricsql .= $wpdb->prepare(
 
@@ -274,78 +260,12 @@ function query_and_save_analytics($analytics,$startdate,$verbose = false) {
 
 					);
 
-				$metricsql .= ", \n";
-
-				// Insert ga:exits
-				$metricsql .= $wpdb->prepare(
-
-						"(
-							(SELECT `id` from " . PAGES_TABLE . " WHERE `pagepath`=%s),
-							%s,
-							%s,
-							%s,
-							%s,
-							%s)
-						", $r[0], date_format($tstart, 'Y-m-d'), date_format($tend, 'Y-m-d'), date_format($qTime, 'Y-m-d H:i:s'), 'ga:exits', $r[3], $r[3]
-
-					);
-
-				$metricsql .= ", \n";
-
-				// Insert ga:bouncerate
-				$metricsql .= $wpdb->prepare(
-
-						"(
-							(SELECT `id` from " . PAGES_TABLE . " WHERE `pagepath`=%s),
-							%s,
-							%s,
-							%s,
-							%s,
-							%s)
-						", $r[0], date_format($tstart, 'Y-m-d'), date_format($tend, 'Y-m-d'), date_format($qTime, 'Y-m-d H:i:s'), 'ga:bounceRate', $r[4], $r[4]
-
-					);
-
-				$metricsql .= ", \n";
-
-				// Insert ga:avgSessionDuration
-				$metricsql .= $wpdb->prepare(
-
-						"(
-							(SELECT `id` from " . PAGES_TABLE . " WHERE `pagepath`=%s),
-							%s,
-							%s,
-							%s,
-							%s,
-							%s)
-						", $r[0], date_format($tstart, 'Y-m-d'), date_format($tend, 'Y-m-d'), date_format($qTime, 'Y-m-d H:i:s'), 'ga:avgSessionDuration', $r[5], $r[5]
-
-					);
-
-				$metricsql .= ", \n";
-
-				// Insert ga:avgTimeOnPage
-				$metricsql .= $wpdb->prepare(
-
-						"(
-							(SELECT `id` from " . PAGES_TABLE . " WHERE `pagepath`=%s),
-							%s,
-							%s,
-							%s,
-							%s,
-							%s)
-						", $r[0], date_format($tstart, 'Y-m-d'), date_format($tend, 'Y-m-d'), date_format($qTime, 'Y-m-d H:i:s'), 'ga:avgTimeOnPage', $r[6], $r[6]
-
-					);
-
 				if($iter->hasNext()) {
 					$pagesql .= ", \n";
 					$metricsql .= ", \n";
 				}
-
 			}
-
-		endforeach;
+		}
 
 		// on duplicate key, don't do much.
 		$pagesql .= " ON DUPLICATE KEY UPDATE `id`=LAST_INSERT_ID(id)";
@@ -369,8 +289,16 @@ function query_and_save_analytics($analytics,$startdate,$verbose = false) {
 }
 
 /**
+ * Get rid of any records in the metrics table having a startdate older than 2 days ago
+ */
+function purge_old_analytics() {
+	global $wpdb;
+	$SQL = "delete " . METRICS_TABLE . " from " . METRICS_TABLE . " where startdate < (curdate()  - interval 2 day);";
+	$wpdb->query($SQL);
+}
+
+/**
  * Static logging class for cron jobs.
- *
  */
 Class AnalyticBridgeLog {
 

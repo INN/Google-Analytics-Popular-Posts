@@ -4,10 +4,10 @@ Class AnayticBridgePopularPosts implements Iterator {
 
 	// array of results.
 	private $result;
-	
+
 	// used by iterator.
 	private $position;
-	
+
 	// was a valid query executed?
 	public $queried;
 
@@ -47,7 +47,7 @@ Class AnayticBridgePopularPosts implements Iterator {
 
 			/* sql statement that pulls todays sessions, yesterdays 		*/
 			/* sessions and a weighted average of them from the database.	*/
-			$this->result = $wpdb->get_results("
+			$SQL = "
 				--							---
 				--  SELECT POPULAR POSTS 	---
 				--							---
@@ -119,7 +119,9 @@ Class AnayticBridgePopularPosts implements Iterator {
 				WHERE `pst`.`post_type` = 'post'
 					ORDER BY `weighted_pageviews` DESC
 					LIMIT $this->size
-			");
+			";
+
+			$this->result = $wpdb->get_results($SQL);
 
 			$this->queried = true;
 			$this->setIds();
