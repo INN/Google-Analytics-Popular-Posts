@@ -1,34 +1,34 @@
 <?php
 
 class AnalyticBridge {
- 
-	/** 
-	 * Refers to a single instance of this class. 
+
+	/**
+	 * Refers to a single instance of this class.
 	 */
 	private static $instance = null;
 
-	/** 
-	 * Refers to a single instance of this class. 
+	/**
+	 * Refers to a single instance of this class.
 	 */
 	private $client;
 
 	private $clientAuthenticated;
-	
+
 	/**
 	 * Creates or returns an instance of this class.
 	 *
 	 * @return AnalyticBridge Object A single instance of this class.
 	 */
 	public static function get_instance() {
-	
+
 		if ( null == self::$instance ) {
 			self::$instance = new self;
 		}
-	
+
 		return self::$instance;
-	
+
 	} // end get_instance;
-	
+
 	/**
 	 * Initializes the plugin by setting localization, filters, and administration functions.
 	 */
@@ -36,27 +36,27 @@ class AnalyticBridge {
 
 		$this->client = null;
 		$this->clientAuthenticated = false;
-	
+
 	} // end constructor
 
 	/**
 	 * Attempts to authenticate with google's servers.
-	 * 
-	 * Pulls the access_token and refresh_token provided by google from the 
+	 *
+	 * Pulls the access_token and refresh_token provided by google from the
 	 * database and authenticates a google client.
-	 * 
+	 *
 	 * On success, returns a google_client object that's pre authenticated and loaded
 	 * with the right scopes to access analytic data and email/name of the authenticated.
-	 * 
+	 *
 	 * On failure, returns false.
-	 * 
+	 *
 	 * @since v0.1
-	 * 
-	 * @param boolean $auth whether we should try to authenticate the client or just set it up 
+	 *
+	 * @param boolean $auth whether we should try to authenticate the client or just set it up
 	 *		with the right scopes.
-	 * @param array $e passed by reference. If provided, $e will contain error information 
+	 * @param array $e passed by reference. If provided, $e will contain error information
 	 *		if authentication fails.
-	 * 
+	 *
 	 * @return Google_Client object on success, 'false' on failure.
 	 */
 	public function getClient($auth = true,&$e = null) {
@@ -67,7 +67,7 @@ class AnalyticBridge {
 
 		// We want to authenticate and there is no auth ticket or refresh token.
 		if( $auth && !(get_option('analyticbridge_access_token') && get_option('analyticbridge_refresh_token')) ) :
-			
+
 			if( $e ) {
 				$e = array();
 				$e['message'] = 'No access token. Get a system administrator to authenticate the Analytic Bridge.';
@@ -86,7 +86,7 @@ class AnalyticBridge {
 			return false;
 
 		// We have everything we need.
-		else : 
+		else :
 
 			// Create a Google Client.
 
@@ -101,14 +101,14 @@ class AnalyticBridge {
 			$client->setAccessType("offline");
 			$client->setScopes(
 				array(
-					'https://www.googleapis.com/auth/analytics.readonly', 
-					'https://www.googleapis.com/auth/userinfo.email', 
+					'https://www.googleapis.com/auth/analytics.readonly',
+					'https://www.googleapis.com/auth/userinfo.email',
 					'https://www.googleapis.com/auth/userinfo.profile'
 				)
 			);
 
-			/* 
-			 * If there's an access token set, try to authenticate with it. 
+			/*
+			 * If there's an access token set, try to authenticate with it.
 			 * Otherwise we just return without any authenticating.
 			 */
 			if( $auth ) :
@@ -121,12 +121,12 @@ class AnalyticBridge {
 						update_option('analyticbridge_access_token',$client->getAccessToken());
 					}
 					$this->clientAuthenticated = true;
-				
+
 				} catch(Google_Auth_Exception $error) {
-					
+
 					// return (by reference) error information.
-					if ( $e ) { 
-						$e = $error; 
+					if ( $e ) {
+						$e = $error;
 					}
 
 					$this->clientAuthenticated = false;
@@ -143,19 +143,19 @@ class AnalyticBridge {
 
 		endif;
 	}
- 
+
 }
 
 /**
  * Attempts to authenticate with google's servers.
- * 
+ *
  * @see AnalyticBridge->getClient() for full documentation.
- * 
+ *
  * @since v0.1
- * 
- * @param boolean $auth whether we should try to authenticate the client or just set it up 
+ *
+ * @param boolean $auth whether we should try to authenticate the client or just set it up
  *		with the right scopes.
- * @param array $e passed by reference. If provided, $e will contain error information 
+ * @param array $e passed by reference. If provided, $e will contain error information
  *		if authentication fails.
  * @return Google_Client object on success, 'false' on failure.
  */
@@ -166,19 +166,19 @@ function analytic_bridge_google_client($auth = true,&$e = null) {
 
 /**
  * Used the first time a user is authenticating.
- * 
+ *
  * Attempts to authenticate a new google client for the first time and
  * saves an access and refresh token to the database before returning the client.
- * 
+ *
  * @since 0.1
- * 
- * @param String $code 
+ *
+ * @param String $code
  */
 function analytic_bridge_authenticate_google_client($code, &$e = null) {
 
 	// get a new unauthenticated google client.
 	$client = analytic_bridge_google_client(false,$e);
-	
+
 	// If we didn't get a client (for whatever reason) return false.
 	if(!$client)
 		return false;
@@ -214,9 +214,9 @@ function analyticbridge_client_secret() {
 
 /**
  * If API tokens are defined for the network return true. Else, return false.
- * 
+ *
  * @since v0.1
- * 
+ *
  * @return boolean true if network api tokens are defined, false if otherwise.
  */
 function analyticbridge_using_network_api_tokens() {

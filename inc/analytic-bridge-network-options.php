@@ -72,4 +72,3 @@ function analyticbridge_update_network_options(){
 	exit;
 }
 add_action('admin_post_network-analytic-bridge-options',  'analyticbridge_update_network_options');
-
