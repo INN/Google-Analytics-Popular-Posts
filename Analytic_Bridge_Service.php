@@ -1,7 +1,7 @@
 <?php
 
 Class Analytic_Bridge_Service extends Google_Service_Analytics {
-	
+
 	public function timezone(&$report) {
 
 		$profileInfo = $report->getProfileInfo();

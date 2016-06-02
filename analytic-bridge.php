@@ -30,7 +30,7 @@ require_once( plugin_dir_path( __FILE__ ) . 'Analytic_Bridge_Service.php');
 /**
  * Registers admin option page and populates with
  * plugin settings.
- */ 
+ */
 require_once( plugin_dir_path( __FILE__ ) . 'inc/analytic-bridge-network-options.php');
 require_once( plugin_dir_path( __FILE__ ) . 'inc/analytic-bridge-blog-options.php');
 
@@ -45,7 +45,7 @@ include_once(plugin_dir_path( __FILE__ ) .'inc/analytic-bridge-installing.php');
 
 /**
  * Add new intervals for cron jobs.
- * 
+ *
  * @since 0.1
  */
 function new_interval($interval) {
@@ -62,7 +62,7 @@ function new_interval($interval) {
 add_filter('cron_schedules', 'new_interval');
 
 
-/** 
+/**
  * ----------------------------------------------------------------------------------------------
  * Step 2: Connect to Google & create an api token.
  * ----------------------------------------------------------------------------------------------
@@ -74,19 +74,19 @@ function largo_die($e) {
 }
 
 function largo_pre_print($pre) {
-	echo "<pre style='background:#fff;border:1px solid #eee;overflow-y:scroll'>";	
+	echo "<pre style='background:#fff;border:1px solid #eee;overflow-y:scroll'>";
 	print_r($pre);
 	echo "</pre>";
 }
 
 /**
  * A cron job that loads data from google analytics into out analytic tables.
- * 
+ *
  * @since v0.2
- * 
+ *
  * @uses get_site_url
- * 
- * @param boolean $verbose set to true to print 
+ *
+ * @param boolean $verbose set to true to print
  */
 function largo_anaylticbridge_cron($verbose = false) {
 
@@ -103,7 +103,7 @@ function largo_anaylticbridge_cron($verbose = false) {
 	// 1: Create an API client.
 
 	$client = analytic_bridge_google_client(true,$e);
-			
+
 	if($client == false) {
 		if($verbose) echo("[Error] creating api client, message: " . $e["message"] . "\n");
 		if($verbose) echo("\nEnd analyticbridge_cron\n");
@@ -112,8 +112,9 @@ function largo_anaylticbridge_cron($verbose = false) {
 
 	$analytics = new Analytic_Bridge_Service($client);
 
-	query_and_save_analytics($analytics,"today",$verbose);
-	query_and_save_analytics($analytics,"yesterday",$verbose);
+	query_and_save_analytics( $analytics, "today", $verbose );
+	query_and_save_analytics( $analytics, "yesterday", $verbose );
+	purge_old_analytics();
 
 	if($verbose) echo("Analytic Bridge cron executed successfully\n");
 	if($verbose) echo("\nEnd analyticbridge_cron\n");
@@ -122,26 +123,24 @@ function largo_anaylticbridge_cron($verbose = false) {
 	function rutime($ru, $rus, $index) {
 		return ($ru["ru_$index.tv_sec"]*1000 + intval($ru["ru_$index.tv_usec"]/1000)) - ($rus["ru_$index.tv_sec"]*1000 + intval($rus["ru_$index.tv_usec"]/1000));
 	}
-		
+
 	$ru = getrusage();
 	if($verbose) echo "\nThis process used " . rutime($ru, $rustart, "utime") . " ms for its computations\n";
 	if($verbose) echo "It spent " . rutime($ru, $rustart, "stime") . " ms in system calls\n";
 
-
 	return;
-
 }
 add_action( 'analyticbridge_hourly_cron', 'largo_anaylticbridge_cron' );
 
 /**
  * Queries analytics and saves them to the table for the given start date.
- * 
+ *
  * If the start and end dates already exist in the table, it first clears
  * them out and refreshes the values.
- * 
+ *
  * @param boolean $verbose whether we should print while we do it.
  */
-function query_and_save_analytics($analytics,$startdate,$verbose = false) {
+function query_and_save_analytics($analytics, $startdate, $verbose=false) {
 
 	global $wpdb;
 
@@ -156,7 +155,7 @@ function query_and_save_analytics($analytics,$startdate,$verbose = false) {
 					$start,
 					$start,
 					"ga:sessions,ga:pageviews,ga:exits,ga:bounceRate,ga:avgSessionDuration,ga:avgTimeOnPage",
-					array( 
+					array(
 					  "dimensions" => "ga:pagePath",
 					  'max-results' => '1000',
 					  'sort' => '-ga:sessions'
@@ -167,7 +166,7 @@ function query_and_save_analytics($analytics,$startdate,$verbose = false) {
 		echo "returned report:\n\n";
 		echo " - itemsPerPage: " . $report->itemsPerPage . "\n";
 		echo " - row count: " . sizeof($report->rows) . "\n\n";
-	} 
+	}
 
 	// Get google's timezone. Save it in case we need it later.
 
@@ -179,7 +178,7 @@ function query_and_save_analytics($analytics,$startdate,$verbose = false) {
 
 	// Start a mysql transaction, in a try catch.
 	try {
-	
+
 		// $wpdb->query('START TRANSACTION');
 
 		// Begin our sql statement.
@@ -188,20 +187,23 @@ function query_and_save_analytics($analytics,$startdate,$verbose = false) {
 
 		// caching iterator contains hasNext() functionality.
 		$iter = new CachingIterator(new ArrayIterator($report->rows));
-		
-		foreach($iter as $r) :
-		
+
+		foreach ($iter as $r) {
 			// $r[0] - pagePath
 			$gapath = $r[0];
-	
+
 			// map google url path the wordpress path.
 			$wpurl = get_home_url() . preg_replace('/index.php$/', '', $gapath);
-	
+
 			// try to determine the $postid.
 			$postid = url_to_postid( $wpurl );
 
+			// if the $postid is 0, url_to_postid failed. skip importing data for this page.
+			if ( $postid == 0 ) {
+				continue;
+			}
 
-			if( $postid && (get_permalink($postid) != $wpurl) ) {
+			if ( $postid && (get_permalink($postid) != $wpurl) ) {
 
 				//
 				// In some cases, two pagepaths might belong to the same post.
@@ -215,28 +217,28 @@ function query_and_save_analytics($analytics,$startdate,$verbose = false) {
 				//   - /sports/2015/04/23/heres-the-slug/index.php
 				//   - /index.php?p=118468&preview=true
 				//   - &c.
-				// 
+				//
 				// So that something like a preview page doesn't overwrite its low metrics
 				// with the actual count we catch it here and do nothing with it.
 				// everything else follows the else.
-				// 
+				//
 
 			} else {
-	
+
 				// Insert into our 'post' table the pagepath and related postid
 				// (if it doesn't exist).
 				// Update `id` so that mysql_last_inserted is set.
 				$pagesql .= $wpdb->prepare(
 						"\t(%s, %s)", $gapath, $postid
 					);
-	
+
 				// Adjust things to save based on the google analytics timezone.
 				$tstart = new DateTime($startdate,new DateTimeZone($gaTimezone));
 				$tend = new DateTime($startdate,new DateTimeZone($gaTimezone));
-	
+
 				// The time that the query happened (± a few seconds).
 				$qTime = new DateTime('now',new DateTimeZone($gaTimezone));
-	
+
 				// $r[1] - ga:sessions
 				// $r[2] - ga:pageviews
 				// $r[3] - ga:exits
@@ -244,26 +246,10 @@ function query_and_save_analytics($analytics,$startdate,$verbose = false) {
 				// $r[5] - ga:avgSessionDuration
 				// $r[6] - ga:avgTimeOnPage
 
-				// Insert ga:sessions
-				$metricsql .= $wpdb->prepare(
-	
-						"( 
-							(SELECT `id` from " . PAGES_TABLE . " WHERE `pagepath`=%s),
-							%s,
-							%s,
-							%s,
-							%s,
-							%s)
-						", $r[0], date_format($tstart, 'Y-m-d'), date_format($tend, 'Y-m-d'), date_format($qTime, 'Y-m-d H:i:s'), 'ga:sessions', $r[1], $r[1]
-	
-					);
-	
-				$metricsql .= ", \n";
-	
 				// Insert ga:pageviews
 				$metricsql .= $wpdb->prepare(
-	
-						"( 
+
+						"(
 							(SELECT `id` from " . PAGES_TABLE . " WHERE `pagepath`=%s),
 							%s,
 							%s,
@@ -271,81 +257,15 @@ function query_and_save_analytics($analytics,$startdate,$verbose = false) {
 							%s,
 							%s)
 						", $r[0], date_format($tstart, 'Y-m-d'), date_format($tend, 'Y-m-d'), date_format($qTime, 'Y-m-d H:i:s'), 'ga:pageviews', $r[2], $r[2]
-	
+
 					);
-	
-				$metricsql .= ", \n";
-	
-				// Insert ga:exits
-				$metricsql .= $wpdb->prepare(
-	
-						"( 
-							(SELECT `id` from " . PAGES_TABLE . " WHERE `pagepath`=%s),
-							%s,
-							%s,
-							%s,
-							%s,
-							%s)
-						", $r[0], date_format($tstart, 'Y-m-d'), date_format($tend, 'Y-m-d'), date_format($qTime, 'Y-m-d H:i:s'), 'ga:exits', $r[3], $r[3]
-	
-					);
-	
-				$metricsql .= ", \n";
-	
-				// Insert ga:bouncerate
-				$metricsql .= $wpdb->prepare(
-	
-						"( 
-							(SELECT `id` from " . PAGES_TABLE . " WHERE `pagepath`=%s),
-							%s,
-							%s,
-							%s,
-							%s,
-							%s)
-						", $r[0], date_format($tstart, 'Y-m-d'), date_format($tend, 'Y-m-d'), date_format($qTime, 'Y-m-d H:i:s'), 'ga:bounceRate', $r[4], $r[4]
-	
-					);
-	
-				$metricsql .= ", \n";
-	
-				// Insert ga:avgSessionDuration
-				$metricsql .= $wpdb->prepare(
-	
-						"( 
-							(SELECT `id` from " . PAGES_TABLE . " WHERE `pagepath`=%s),
-							%s,
-							%s,
-							%s,
-							%s,
-							%s)
-						", $r[0], date_format($tstart, 'Y-m-d'), date_format($tend, 'Y-m-d'), date_format($qTime, 'Y-m-d H:i:s'), 'ga:avgSessionDuration', $r[5], $r[5]
-	
-					);
-	
-				$metricsql .= ", \n";
-	
-				// Insert ga:avgTimeOnPage
-				$metricsql .= $wpdb->prepare(
-	
-						"( 
-							(SELECT `id` from " . PAGES_TABLE . " WHERE `pagepath`=%s),
-							%s,
-							%s,
-							%s,
-							%s,
-							%s)
-						", $r[0], date_format($tstart, 'Y-m-d'), date_format($tend, 'Y-m-d'), date_format($qTime, 'Y-m-d H:i:s'), 'ga:avgTimeOnPage', $r[6], $r[6]
-	
-					);
-	
+
 				if($iter->hasNext()) {
 					$pagesql .= ", \n";
 					$metricsql .= ", \n";
 				}
-
 			}
-
-		endforeach;
+		}
 
 		// on duplicate key, don't do much.
 		$pagesql .= " ON DUPLICATE KEY UPDATE `id`=LAST_INSERT_ID(id)";
@@ -369,8 +289,16 @@ function query_and_save_analytics($analytics,$startdate,$verbose = false) {
 }
 
 /**
+ * Get rid of any records in the metrics table having a startdate older than 2 days ago
+ */
+function purge_old_analytics() {
+	global $wpdb;
+	$SQL = "delete " . METRICS_TABLE . " from " . METRICS_TABLE . " where startdate < (curdate()  - interval 2 day);";
+	$wpdb->query($SQL);
+}
+
+/**
  * Static logging class for cron jobs.
- * 
  */
 Class AnalyticBridgeLog {
 
@@ -382,11 +310,11 @@ Class AnalyticBridgeLog {
 
 		if( !WP_DEBUG )
 			return;
-		
+
 		if( $date === null ) {
 			$date = new DateTime('now', new DateTimeZone('America/Chicago'));
 		}
-		
+
 		$time = $date->format('D M d h:i:s');
 		$log = "[$time] $log\n";
 
@@ -397,13 +325,13 @@ Class AnalyticBridgeLog {
 
 /**
  * Class to fake Google Analytics requests.
- * 
+ *
  * This class extends Google_Service_Analytics and fakes requests to the
  * Google API for debugging by generating data based on the global Wordpress
  * object.
- * 
+ *
  * Needs work.
- * 
+ *
  * @since v0.1
  */
 class Google_Service_Analytics_Generator extends Google_Service_Analytics {
@@ -412,10 +340,10 @@ class Google_Service_Analytics_Generator extends Google_Service_Analytics {
 
 	/**
 	 * Construct a new Analytics Generator.
-	 * 
+	 *
 	 * data_ga is set to ourselves. We handle the get function
 	 * internally.
-	 * 
+	 *
 	 * @since v0.1
 	 */
 	public function __construct(Google_Client $client) {
@@ -424,20 +352,20 @@ class Google_Service_Analytics_Generator extends Google_Service_Analytics {
 
 	/**
 	 * Overrided Google_Service_Analytics_DataGa_Resource get function.
-	 * 
+	 *
 	 * @return Google_Service_Analytics_GaData Object with proper row values.
 	 */
 	public function get($ids, $startDate, $endDate, $metrics, $optParams = array()) {
 
 		$rows = array();
 		$metrics = explode(",",$metrics);
-		
+
 		$the_query = new WP_Query(  array( 'post_type' => 'post') );
 
 		if ( $the_query->have_posts() ) :
 
 			while ( $the_query->have_posts() ) : $the_query->the_post();
-	
+
 				$r = array();
 				$url = parse_url(get_permalink());
 				$r[0] = $url['path'] . $url['query'];
@@ -463,9 +391,9 @@ class Google_Service_Analytics_Generator extends Google_Service_Analytics {
 				}
 
 				$rows[] = $r;
-	
+
 			endwhile;
-		
+
 			wp_reset_postdata();
 
 		endif;
