@@ -14,13 +14,13 @@ Use Google Analytics data to determine the most popular posts on your site and d
 
 This Google Analytics Popular Posts plugin queries Google Analytics for pageview data for your site and uses an algorithm based on publish date and total number of pageviews to determine a weighted pageview score for a post.
 
-Using this scoring mechanism, the plugin generates a list of the most popular posts for a given site. The list of popular posts can be displayed using the included "Analytic Bridge Popular Posts" widget.
+Using this scoring mechanism, the plugin generates a list of the most popular posts for a given site. The list of popular posts can be displayed using the included "Google Analytics Popular Posts" widget.
 
 == Installation ==
 
 1. Upload the plugin files to the `/wp-content/plugins/google-analytics-popular-posts` directory, or install the plugin through the WordPress plugins screen directly.
 2. Activate the plugin through the 'Plugins' screen in WordPress
-3. Authenticate using your Google account via the Settings > Analytic Bridge page in the WordPress dashboard
+3. Authenticate using your Google account via the Settings > GA Popular Posts page in the WordPress dashboard
 4. Review the settings, changing them as desired and click "Save changes"
 
 == Frequently Asked Questions ==
