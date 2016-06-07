@@ -21,7 +21,7 @@ class AnalyticBridgePopularPostWidget extends WP_Widget {
 
 		parent::__construct(
 			'analytic-bridge-popular-posts', // Base ID
-			__( 'Analytic Bridge Popular Posts', 'analytic-bridge' ), // Name
+			__( 'Google Analytics Popular Posts', 'analytic-bridge' ), // Name
 			array( 'description' => __( 'List popular posts', 'analytic-bridge' ), ) // Args
 		);
 		// widget actual processes

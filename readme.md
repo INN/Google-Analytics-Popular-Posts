@@ -1,4 +1,4 @@
-# Analytic Bridge
+# Google Analytics Popular Posts
 
 **_Warning:_** this plugin is under active development. Updating to new versions might require reactivating to rebuild database tables, as there is currently no upgrading framework.
 
@@ -10,12 +10,15 @@
 ## Questions
 
 ###### _How does this differ from other WordPress popular post plugins?_
+
 The problem we found with many WordPress popular post plugins was the lack of data used in the algorithm. Our approach was first to pull as much data as possible into WordPress so we could develop a better algorithm.
 
 ###### _What data are you capturing?_
-We're currently calling and caching the metrics `ga:sessions`, `ga:pageviews`, `ga:exits`, `ga:bounceRate`, `ga:avgSessionDuration` and `ga:avgTimeOnPage` to the database for each `ga:pagepath` dimension. Values for the current day and previous are stored during each cron job. A post id is generated for each `ga:pagepath` that corresponds to an actual post.
+
+We're currently calling and caching the `ga:pageviews` to the database for each `ga:pagepath` dimension. Values for the current day and previous are stored during each cron job. A post id is generated for each `ga:pagepath` that corresponds to an actual post.
 
 ###### _How do I query the data myself?_
+
 The data is stored across two database tables. The first (`analyticbridge_pages`) stores each `ga:pagepath` with a unique id and corresponding post id (if it exists).
 
 The second table (`analyticbridge_metrics`) relates a `page_id` to a metric & value over a start & end date.
