@@ -1,8 +1,8 @@
 <?php
 /*
-Plugin Name: 	Analytic Bridge
+Plugin Name: 	Google Analytics Popular Posts
 Description: 	Pull analytic data into your wordpress install.
-Author: 		Will Haynes for INN
+Author: 		inn_nerds
 Author URI: 	http://twitter.com/innnerds
 Version:		0.1
 License: 		Copyright © 2015 INN
@@ -116,7 +116,7 @@ function largo_anaylticbridge_cron($verbose = false) {
 	query_and_save_analytics( $analytics, "yesterday", $verbose );
 	purge_old_analytics();
 
-	if($verbose) echo("Analytic Bridge cron executed successfully\n");
+	if($verbose) echo("Google Analytics Popular Posts cron executed successfully\n");
 	if($verbose) echo("\nEnd analyticbridge_cron\n");
 
 	// Script end

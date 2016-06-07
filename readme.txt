@@ -1,4 +1,4 @@
-=== Analytic Bridge ===
+=== Google Analytics Popular Posts ===
 Contributors: inn_nerds
 Donate link: http://bit.ly/1N4nSJJ
 Tags: most popular, google analytics
@@ -12,13 +12,13 @@ Use Google Analytics data to determine the most popular posts on your site and d
 
 == Description ==
 
-The Analytic Bridge queries Google Analytics for pageview data for your site and uses an algorithm based on publish date and total number of pageviews to determine a weighted pageview score for a post.
+This Google Analytics Popular Posts plugin queries Google Analytics for pageview data for your site and uses an algorithm based on publish date and total number of pageviews to determine a weighted pageview score for a post.
 
 Using this scoring mechanism, the plugin generates a list of the most popular posts for a given site. The list of popular posts can be displayed using the included "Analytic Bridge Popular Posts" widget.
 
 == Installation ==
 
-1. Upload the plugin files to the `/wp-content/plugins/analytic-bridge` directory, or install the plugin through the WordPress plugins screen directly.
+1. Upload the plugin files to the `/wp-content/plugins/google-analytics-popular-posts` directory, or install the plugin through the WordPress plugins screen directly.
 2. Activate the plugin through the 'Plugins' screen in WordPress
 3. Authenticate using your Google account via the Settings > Analytic Bridge page in the WordPress dashboard
 4. Review the settings, changing them as desired and click "Save changes"

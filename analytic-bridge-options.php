@@ -19,8 +19,8 @@ function analyticbridge_network_plugin_menu() {
 
 	add_submenu_page(
 		'settings.php',
-		'Analytic Bridge Network Options',
-		'Analytic Bridge',
+		'GA Popular Posts Network Options',
+		'GA Popular Posts',
 		'manage_network_options',
 		'analytic-bridge',
 		'analyticbridge_network_option_page_html'
@@ -39,7 +39,7 @@ function analyticbridge_network_option_page_html() {
 	if(!current_user_can('manage_network_options'))
 		wp_die("Sorry, you don't have permission to do this");
 	echo '<div class="wrap">';
-	echo '<h2>Network Analytic Bridge Options</h2>';
+	echo '<h2>Network Google Analytics Popular Posts Options</h2>';
 	echo '<form action="'. admin_url('admin-post.php?action=network-analytic-bridge-options') .'" method="post">';
 
 	wp_nonce_field('network_option_page_update');
@@ -91,8 +91,8 @@ add_action('admin_post_network-analytic-bridge-options',  'analyticbridge_update
  */
 function analyticbridge_plugin_menu() {
 	add_options_page(
-		'Analytic Bridge Options', 					// $page_title title of the page.
-		'Analytic Bridge', 							// $menu_title the text to be used for the menu.
+		'GA Popular Posts Options', 					// $page_title title of the page.
+		'GA Popular Posts', 							// $menu_title the text to be used for the menu.
 		'manage_options', 							// $capability required capability for display.
 		'analytic-bridge', 							// $menu_slug unique slug for menu.
 		'analyticbridge_option_page_html' 			// $function callback.
@@ -115,7 +115,7 @@ function analyticbridge_option_page_html() {
 
 
 	echo '<div class="wrap">';
-	echo '<h2>Largo Analytic Bridge</h2>';
+	echo '<h2>Google Analytics Popular Posts</h2>';
 	echo '<form method="post" action="options.php">';
 	settings_fields( 'analytic-bridge' );
 	do_settings_sections( 'analytic-bridge' );

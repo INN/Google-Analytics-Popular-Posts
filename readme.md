@@ -1,4 +1,4 @@
-# Analytic Bridge
+# Google Analytics Popular Posts
 
 **_Warning:_** this plugin is under active development. Updating to new versions might require reactivating to rebuild database tables, as there is currently no upgrading framework.
 

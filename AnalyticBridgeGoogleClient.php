@@ -70,7 +70,7 @@ class AnalyticBridge {
 
 			if( $e ) {
 				$e = array();
-				$e['message'] = 'No access token. Get a system administrator to authenticate the Analytic Bridge.';
+				$e['message'] = 'No access token. Get a system administrator to authenticate the Google Analytics Popular Posts plugin.';
 			}
 
 			return false;
@@ -80,7 +80,7 @@ class AnalyticBridge {
 
 			if( $e ) {
 				$e = array();
-				$e['message'] = 'No access token. Get a system administrator to authenticate the Analytic Bridge.';
+				$e['message'] = 'No access token. Get a system administrator to authenticate the Google Analytics Popular Posts plugin.';
 			}
 
 			return false;
