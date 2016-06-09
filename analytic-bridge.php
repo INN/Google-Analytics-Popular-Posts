@@ -1,11 +1,11 @@
 <?php
 /*
-Plugin Name: 	Google Analytics Popular Posts
-Description: 	Pull analytic data into your wordpress install.
-Author: 		inn_nerds
-Author URI: 	http://twitter.com/innnerds
-Version:		0.1
-License: 		Copyright © 2015 INN
+Plugin Name: Google Analytics Popular Posts
+Description: Pull analytic data into your wordpress install.
+Author: inn_nerds
+Author URI: http://twitter.com/innnerds
+Version: 0.1.0
+License: Copyright © 2015 INN
 */
 
 // Prevent direct file access
