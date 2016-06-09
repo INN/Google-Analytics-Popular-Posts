@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 RELEASE_DIR=release;
 SVN_PATH=$RELEASE_DIR/svn;
-SVN_REPO="https://plugins.svn.wordpress.org/plugin-slug-goes-here/";
+SVN_REPO="https://plugins.svn.wordpress.org/ga-popular-posts/";
 BLACKLIST=(
 .\*
 release.sh
