@@ -1,7 +1,7 @@
 === Google Analytics Popular Posts ===
 Contributors: inn_nerds
-Donate link: http://bit.ly/1N4nSJJ
-Tags: most popular, google analytics
+Donate link: https://inn.org/donate
+Tags: most popular, google analytics, analytics, stats
 Requires at least: 4.1
 Tested up to: 4.5.2
 Stable tag: 0.1.0
