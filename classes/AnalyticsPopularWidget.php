@@ -198,15 +198,6 @@ class AnalyticBridgePopularPostWidget extends WP_Widget {
 			</select>
 		</p>
 
-		<?php
-			if ( function_exists( 'largo_filter_abp_article_bottom' ) ) {
-				?>
-		<p>
-			<b>Note:</b> This widget in the "Article Bottom" widget area will force the display of thumbnails and will force the number of posts to three, regardless of the settings here.
-		</p>
-				<?php
-			}
-		?>
 	<?php
 	}
 
