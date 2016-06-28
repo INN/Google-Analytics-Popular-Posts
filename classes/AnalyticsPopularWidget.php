@@ -121,28 +121,6 @@ class AnalyticBridgePopularPostWidget extends WP_Widget {
 				$classes = join( ' ', get_post_class() );
 				$output .= '<li class="' . $classes . '">';
 
-				// The top term
-				$top_term_args = array( 'echo' => false );
-				if ( isset( $instance['show_top_term']) && $instance['show_top_term'] == 1 && largo_has_categories_or_tags() ) {
-					$output .= '<h5 class="top-tag">' . largo_top_term( $top_term_args ) . '</h5>' ;
-				}
-
-				// Compatibility with Largo's video thumbnail styles, see https://github.com/INN/Largo/issues/836
-				$hero_class = '';
-				if ( function_exists( 'largo_hero_class' ) && $thumb != 'none' ) {
-					$hero_class = largo_hero_class( get_the_ID(), false );
-					$output .= '<div class="'. $hero_class . '">';
-				}
-				// the thumbnail image (if we're using one)
-				if ( $thumb == 'large' ) {
-					$img_attr = array();
-					$img_attr['class'] .= " attachment-large";
-					$output .= '<a href="' . get_permalink() . '" >' . get_the_post_thumbnail( get_the_ID(), 'large', $img_attr ) . "</a>";
-				}
-				if ( function_exists( 'largo_hero_class' ) && $thumb != 'none') {
-					$output .= '</div>';
-				}
-
 				// the headline
 				$output .= '<h5><a href="' . get_permalink() . '">' . get_the_title() . '</a></h5>';
 
@@ -220,14 +198,6 @@ class AnalyticBridgePopularPostWidget extends WP_Widget {
 			</select>
 		</p>
 
-		<p>
-			<label for="<?php echo $this->get_field_id( 'olul' ); ?>"><?php _e( 'Display as an ordered list (with numbers) or as an unordered list?', 'largo' ); ?></label>
-			<select id="<?php echo $this->get_field_id( 'olul' ); ?>" name="<?php echo $this->get_field_name( 'olul' ); ?>" class="widefat">
-				<option <?php selected( $instance['olul'], 'ul' ); ?> value="ul"><?php _e( 'Unordered list', 'largo' ); ?></option>
-				<option <?php selected( $instance['olul'], 'ol' ); ?> value="ol"><?php _e( 'Ordered list', 'largo' ); ?></option>
-			</select>
-		</p>
-
 		<?php
 			if ( function_exists( 'largo_filter_abp_article_bottom' ) ) {
 				?>
@@ -251,7 +221,6 @@ class AnalyticBridgePopularPostWidget extends WP_Widget {
 		$instance['title'] = sanitize_text_field( $new_instance['title'] );
 		$instance['num_posts'] = intval( $new_instance['num_posts'] );
 		$instance['olul'] = sanitize_text_field( $new_instance['olul'] );
-		$instance['thumbnail_display'] = sanitize_key( $new_instance['thumbnail_display'] );
 		return $instance;
 	}
 
