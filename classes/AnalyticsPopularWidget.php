@@ -46,7 +46,16 @@ class AnalyticBridgePopularPostWidget extends WP_Widget {
 		global $shown_ids, $post; // an array of post IDs already on a page so we can avoid duplicating posts
 		$preserve = $post;
 
-		$posts_term = of_get_option( 'posts_term_plural', 'Posts' );
+		/**
+		 * Allow changing of the name of whatever we're calling posts.
+		 *
+		 * Also used in the form() method in this class
+		 *
+		 * @filter
+		 * @link https://github.com/INN/analytic-bridge/issues/43
+		 * @param string 'Posts'
+		 */
+		$posts_term = apply_filters( 'abp-widget-posts-term', __('Posts') );
 
 		/**
 		 * Filter the Analytics Bridge Plugin widget $args and $instance variables on page generation time.
@@ -145,7 +154,10 @@ class AnalyticBridgePopularPostWidget extends WP_Widget {
 			echo $output;
 
 		} else {
-			printf(__('<p class="error"><strong>No posts found.</strong></p>', 'largo'), strtolower( $posts_term ) );
+			printf(
+				__('<p class="error"><strong>No %1$s found.</strong></p>', 'largo'),
+				strtolower( $posts_term )
+			);
 		} // end more featured posts
 
 		// close the ul if we're just showing a list of headlines
@@ -168,8 +180,20 @@ class AnalyticBridgePopularPostWidget extends WP_Widget {
 	 * @param array $instance The widget options
 	 */
 	public function form( $instance ) {
+
+		/**
+		 * Allow changing of the name of whatever we're calling posts.
+		 *
+		 * Also used in the widget() method in this class
+		 *
+		 * @filter
+		 * @link https://github.com/INN/analytic-bridge/issues/43
+		 * @param string 'Posts'
+		 */
+		$posts_term = apply_filters( 'abp-widget-posts-term', __('Posts') );
+
 		$defaults = array(
-			'title' => __('Recent ' . of_get_option( 'posts_term_plural', 'Posts' ), 'largo'),
+			'title' => __('Recent', 'largo') . ' ' . $posts_term,
 			'num_posts' => 3,
 			'olul' => 'ol',
 			'thumbnail_display' => 'medium',
