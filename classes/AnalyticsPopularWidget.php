@@ -21,12 +21,12 @@ class AnalyticBridgePopularPostWidget extends WP_Widget {
 
 		parent::__construct(
 			'analytic-bridge-popular-posts', // Base ID
-			__( 'Google Analytics Popular Posts', 'analytic-bridge' ), // Name
-			array( 'description' => __( 'List popular posts', 'analytic-bridge' ), ) // Args
+			__( 'Google Analytics Popular Posts', 'largo' ), // Name
+			array( 'description' => __( 'List popular posts', 'largo' ), ) // Args
 		);
 		// widget actual processes
-		if(is_active_widget(false, false, $this->id_base)) {
-			wp_enqueue_style( "abp-popular-posts-widget", plugins_url("css/abp-popular-posts-widget.css", __DIR__), "largo-stylesheet" );
+		if( is_active_widget( false, false, $this->id_base ) ) {
+			wp_enqueue_style( 'abp-popular-posts-widget', plugins_url( 'css/abp-popular-posts-widget.css', __DIR__ ), 'largo-stylesheet' );
 		}
 	}
 
