@@ -4,7 +4,7 @@ Donate link: https://inn.org/donate
 Tags: most popular, google analytics, analytics, stats
 Requires at least: 4.1
 Tested up to: 4.5.2
-Stable tag: 0.1.0
+Stable tag: 0.1.1
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -42,6 +42,13 @@ The second table (`analyticbridge_metrics`) relates a `page_id` to a metric & va
 To query this data yourself, find the corresponding page_id from the pages table and select using it from the metrics table. This can be accomplished using joins.
 
 == Changelog ==
+
+= 0.1.1 =
+
+- Remove calls to function `of_get_option`, `largo_top_term`, `largo_hero_class`, `largo_has_categories_or_tags`
+- Remove option to display thumbnails for posts
+- Adds filter `abp-widget-posts-term` to allow changing the word used for multiple posts.
+- Small code formatting cleanups
 
 = 0.1.0 =
 
