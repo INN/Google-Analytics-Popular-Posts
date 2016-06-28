@@ -55,7 +55,7 @@ class AnalyticBridgePopularPostWidget extends WP_Widget {
 		 * @link https://github.com/INN/analytic-bridge/issues/43
 		 * @param string 'Posts'
 		 */
-		$posts_term = apply_filters( 'abp-widget-posts-term', __('Posts') );
+		$posts_term = apply_filters( 'abp-widget-posts-term', __( 'Posts', 'largo' ) );
 
 		/**
 		 * Filter the Analytics Bridge Plugin widget $args and $instance variables on page generation time.
@@ -71,11 +71,11 @@ class AnalyticBridgePopularPostWidget extends WP_Widget {
 		 * @param array $instance this particular widget's settings
 		 * @param array $args the widget arguments
 		 */
-		$instance = apply_filters('abp-widget-force-unsaved-options', $instance, $args);
+		$instance = apply_filters( 'abp-widget-force-unsaved-options', $instance, $args );
 
 		extract( $args );
 
-		$title = apply_filters('widget_title', empty( $instance['title'] ) ? __('Recent ' . $posts_term, 'largo') : $instance['title'], $instance, $this->id_base);
+		$title = apply_filters( 'widget_title', empty( $instance['title'] ) ? __( 'Recent ' . $posts_term, 'largo') : $instance['title'], $instance, $this->id_base );
 
 		/*
 		 * Start drawing the widget
@@ -107,7 +107,7 @@ class AnalyticBridgePopularPostWidget extends WP_Widget {
 
 		// Get posts, sort them using the compare_popular_posts function defined elsewhere in this plugin.
 		$my_query = new WP_Query( $query_args );
-		usort($my_query->posts,array($this, 'compare_popular_posts'));
+		usort( $my_query->posts,array( $this, 'compare_popular_posts' ) );
 
 		if ( $my_query->have_posts() ) {
 
@@ -123,23 +123,23 @@ class AnalyticBridgePopularPostWidget extends WP_Widget {
 
 				// The top term
 				$top_term_args = array('echo' => false);
-				if ( isset($instance['show_top_term']) && $instance['show_top_term'] == 1 && largo_has_categories_or_tags() ) {
-					$output .= '<h5 class="top-tag">' . largo_top_term($top_term_args) . '</h5>' ;
+				if ( isset( $instance['show_top_term']) && $instance['show_top_term'] == 1 && largo_has_categories_or_tags() ) {
+					$output .= '<h5 class="top-tag">' . largo_top_term( $top_term_args ) . '</h5>' ;
 				}
 
 				// Compatibility with Largo's video thumbnail styles, see https://github.com/INN/Largo/issues/836
 				$hero_class = '';
-				if (function_exists("largo_hero_class") && $thumb != 'none') {
+				if ( function_exists( 'largo_hero_class' ) && $thumb != 'none' ) {
 					$hero_class = largo_hero_class(get_the_ID(), false);
 					$output .= '<div class="'. $hero_class . '">';
 				}
 				// the thumbnail image (if we're using one)
-				if ($thumb == 'large') {
+				if ( $thumb == 'large' ) {
 					$img_attr = array();
 					$img_attr['class'] .= " attachment-large";
-					$output .= '<a href="' . get_permalink() . '" >' . get_the_post_thumbnail( get_the_ID(), 'large', $img_attr) . "</a>";
+					$output .= '<a href="' . get_permalink() . '" >' . get_the_post_thumbnail( get_the_ID(), 'large', $img_attr ) . "</a>";
 				}
-				if (function_exists("largo_hero_class") && $thumb != 'none') {
+				if ( function_exists( 'largo_hero_class' ) && $thumb != 'none') {
 					$output .= '</div>';
 				}
 
@@ -155,13 +155,13 @@ class AnalyticBridgePopularPostWidget extends WP_Widget {
 
 		} else {
 			printf(
-				__('<p class="error"><strong>No %1$s found.</strong></p>', 'largo'),
+				__( '<p class="error"><strong>No %1$s found.</strong></p>', 'largo' ),
 				strtolower( $posts_term )
 			);
 		} // end more featured posts
 
 		// close the ul if we're just showing a list of headlines
-		if ($olul == 'ul') {
+		if ( $olul == 'ul' ) {
 			echo '</ul>';
 		} else {
 			echo '</ol>';
@@ -203,33 +203,33 @@ class AnalyticBridgePopularPostWidget extends WP_Widget {
 		?>
 
 		<p>
-			<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e('Title:', 'largo'); ?></label>
+			<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e( 'Title:', 'largo' ); ?></label>
 			<input id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" value="<?php echo $instance['title']; ?>" style="width:90%;" />
 		</p>
 
 		<p>
-			<label for="<?php echo $this->get_field_id( 'num_posts' ); ?>"><?php _e('Number of posts to show:', 'largo'); ?></label>
+			<label for="<?php echo $this->get_field_id( 'num_posts' ); ?>"><?php _e( 'Number of posts to show:', 'largo' ); ?></label>
 			<input id="<?php echo $this->get_field_id( 'num_posts' ); ?>" name="<?php echo $this->get_field_name( 'num_posts' ); ?>" value="<?php echo $instance['num_posts']; ?>" style="width:90%;" type="number"/>
 		</p>
 
 		<p>
-			<label for="<?php echo $this->get_field_id( 'thumbnail_display' ); ?>"><?php _e('Thumbnail Image', 'largo'); ?></label>
-			<select id="<?php echo $this->get_field_id('thumbnail_display'); ?>" name="<?php echo $this->get_field_name('thumbnail_display'); ?>" class="widefat" style="width:90%;">
+			<label for="<?php echo $this->get_field_id( 'thumbnail_display' ); ?>"><?php _e( 'Thumbnail Image', 'largo' ); ?></label>
+			<select id="<?php echo $this->get_field_id( 'thumbnail_display' ); ?>" name="<?php echo $this->get_field_name( 'thumbnail_display' ); ?>" class="widefat" style="width:90%;">
 				<option <?php selected( $instance['thumbnail_display'], 'large'); ?> value="large"><?php _e('Large (Full width of the widget)', 'largo'); ?></option>
 				<option <?php selected( $instance['thumbnail_display'], 'none'); ?> value="none"><?php _e('None', 'largo'); ?></option>
 			</select>
 		</p>
 
 		<p>
-			<label for="<?php echo $this->get_field_id( 'olul' ); ?>"><?php _e('Display as an ordered list (with numbers) or as an unordered list?', 'largo'); ?></label>
+			<label for="<?php echo $this->get_field_id( 'olul' ); ?>"><?php _e( 'Display as an ordered list (with numbers) or as an unordered list?', 'largo' ); ?></label>
 			<select id="<?php echo $this->get_field_id( 'olul' ); ?>" name="<?php echo $this->get_field_name( 'olul' ); ?>" class="widefat">
-				<option <?php selected( $instance['olul'], 'ul'); ?> value="ul"><?php _e('Unordered list', 'largo'); ?></option>
-				<option <?php selected( $instance['olul'], 'ol'); ?> value="ol"><?php _e('Ordered list', 'largo'); ?></option>
+				<option <?php selected( $instance['olul'], 'ul'); ?> value="ul"><?php _e( 'Unordered list', 'largo' ); ?></option>
+				<option <?php selected( $instance['olul'], 'ol'); ?> value="ol"><?php _e( 'Ordered list', 'largo' ); ?></option>
 			</select>
 		</p>
 
 		<?php
-			if ( function_exists('largo_filter_abp_article_bottom') ) {
+			if ( function_exists( 'largo_filter_abp_article_bottom' ) ) {
 				?>
 		<p>
 			<b>Note:</b> This widget in the "Article Bottom" widget area will force the display of thumbnails and will force the number of posts to three, regardless of the settings here.
@@ -260,10 +260,10 @@ class AnalyticBridgePopularPostWidget extends WP_Widget {
 	 *
 	 * @since 0.2
 	 */
-	private function compare_popular_posts($a,$b) {
+	private function compare_popular_posts( $a, $b ) {
 
-		$ascore = $this->popPosts->score($a->ID);
-		$bscore = $this->popPosts->score($b->ID);
+		$ascore = $this->popPosts->score( $a->ID );
+		$bscore = $this->popPosts->score( $b->ID );
 
 		return ( $ascore > $bscore ) ? -1 : 1;
 
