@@ -86,7 +86,6 @@ class AnalyticBridgePopularPostWidget extends WP_Widget {
 			echo $before_title . $title . $after_title;
 		}
 
-		$thumb = isset( $instance['thumbnail_display'] ) ? $instance['thumbnail_display'] : 'none';
 		$olul =  isset( $instance['olul'] ) ? $instance['olul'] : 'ul';
 
 		// Start the list
@@ -174,7 +173,6 @@ class AnalyticBridgePopularPostWidget extends WP_Widget {
 			'title' => __('Recent', 'largo') . ' ' . $posts_term,
 			'num_posts' => 3,
 			'olul' => 'ol',
-			'thumbnail_display' => 'medium',
 		);
 		$instance = wp_parse_args( (array) $instance, $defaults );
 		$olul =  isset( $instance['olul'] ) ? $instance['olul'] : 'ul';
@@ -191,10 +189,10 @@ class AnalyticBridgePopularPostWidget extends WP_Widget {
 		</p>
 
 		<p>
-			<label for="<?php echo $this->get_field_id( 'thumbnail_display' ); ?>"><?php _e( 'Thumbnail Image', 'largo' ); ?></label>
-			<select id="<?php echo $this->get_field_id( 'thumbnail_display' ); ?>" name="<?php echo $this->get_field_name( 'thumbnail_display' ); ?>" class="widefat" style="width:90%;">
-				<option <?php selected( $instance['thumbnail_display'], 'large' ); ?> value="large"><?php _e( 'Large (Full width of the widget)', 'largo' ); ?></option>
-				<option <?php selected( $instance['thumbnail_display'], 'none' ); ?> value="none"><?php _e( 'None', 'largo' ); ?></option>
+			<label for="<?php echo $this->get_field_id( 'olul' ); ?>"><?php _e( 'Display as an ordered list (with numbers) or as an unordered list?', 'largo' ); ?></label>
+			<select id="<?php echo $this->get_field_id( 'olul' ); ?>" name="<?php echo $this->get_field_name( 'olul' ); ?>" class="widefat">
+				<option <?php selected( $instance['olul'], 'ul' ); ?> value="ul"><?php _e( 'Unordered list', 'largo' ); ?></option>
+				<option <?php selected( $instance['olul'], 'ol' ); ?> value="ol"><?php _e( 'Ordered list', 'largo' ); ?></option>
 			</select>
 		</p>
 
