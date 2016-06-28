@@ -118,11 +118,11 @@ class AnalyticBridgePopularPostWidget extends WP_Widget {
 				$shown_ids[] = get_the_ID();
 
 				// wrap the items in li's.
-				$classes = join(' ', get_post_class());
+				$classes = join( ' ', get_post_class() );
 				$output .= '<li class="' . $classes . '">';
 
 				// The top term
-				$top_term_args = array('echo' => false);
+				$top_term_args = array( 'echo' => false );
 				if ( isset( $instance['show_top_term']) && $instance['show_top_term'] == 1 && largo_has_categories_or_tags() ) {
 					$output .= '<h5 class="top-tag">' . largo_top_term( $top_term_args ) . '</h5>' ;
 				}
@@ -130,7 +130,7 @@ class AnalyticBridgePopularPostWidget extends WP_Widget {
 				// Compatibility with Largo's video thumbnail styles, see https://github.com/INN/Largo/issues/836
 				$hero_class = '';
 				if ( function_exists( 'largo_hero_class' ) && $thumb != 'none' ) {
-					$hero_class = largo_hero_class(get_the_ID(), false);
+					$hero_class = largo_hero_class( get_the_ID(), false );
 					$output .= '<div class="'. $hero_class . '">';
 				}
 				// the thumbnail image (if we're using one)
