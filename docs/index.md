@@ -1,10 +1,10 @@
-# Analytic Bridge
+# Google Analytics Popular Posts
 
-<big>Metrics plugin for WordPress</big>
+## Metrics plugin for WordPress
 
 ---
 
-The WordPress Analytic Bridge is an experiment of the [Institute for Nonprofit News](http://inn.org). Its goal is to make Google Analytics easily querable from the WordPress enviornment aiding in post aggregation, article metrics and better editorial understanding.
+Google Analytics Popular Posts is a WordPress plugin from the [Institute for Nonprofit News](http://inn.org). Its goal is to make Google Analytics easily querable from the WordPress enviornment aiding in post aggregation, article metrics and better editorial understanding.
 
 **This plugin is under active development.** Updating to new versions might require reactivating to rebuild database tables, as there is currently no upgrading framework.
 
@@ -17,7 +17,7 @@ The WordPress Analytic Bridge is an experiment of the [Institute for Nonprofit N
 
 ### Description
 
-At its core, Analytic Bridge is a wrapper around the Google Analytics API. On plugin activation, a WordPress cron job is registered to pull fresh analytic data every 20 minutes.
+At its core, Google Analytics Popular Posts is a wrapper around the Google Analytics API. On plugin activation, a WordPress cron job is registered to pull fresh analytic data every 20 minutes.
 
 Functions for querying this data will be available in the future.
 
