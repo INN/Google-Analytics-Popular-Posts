@@ -1,6 +1,6 @@
 # Google Analytics Popular Posts
 
-## An Analytics plugin for WordPress
+## An Analytics Plugin for WordPress
 
 ---
 
