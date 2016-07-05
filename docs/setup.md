@@ -43,7 +43,9 @@ On the next screen just click the "Configure Consent Screen" button:
 
 ![Configure Consent Screen button in the Google Developer Console](img/configure-consent-button.png)
 
-Enter a product name and other optional pieces of the consent screen. No need for advanced configuration — only one user will ever authenticate the app per site.
+Enter a product name and, if you wish, other optional pieces of the consent screen. Only the "Product name shown to users" field is required.
+
+![Adding a Product Name in the Consent Screen of the Google Developer Console](img/ga-popular-posts-credentials-consent-screen.png)
 
 When you're done, save consent screen options.
 
