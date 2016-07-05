@@ -67,29 +67,36 @@ Copy these keys and keep them safe for the next step.
 
 ### 2. Connect the Google Analytics Popular Posts plugin to Google's API
 
-Now it's back to the WordPress dashboard to connect to the Analytics API with your keys and Property ID. Go to **Settings > GA Popular Posts**.
+Now it's back to the WordPress dashboard to connect to the Analytics API with your keys. Go to **Settings > GA Popular Posts**.
 
 Depending on whether your blog is a network or single site, input the Client Secret and Client ID on the appropriate options page.
 
- > ___For Networks:___ If you are the Site Administor of a network, paste the values from step one into the Network Options page for the Google Analytics Popular Posts.
+ > ___For Networks:___ If you are the Site Administor of a network, paste Client Secret and Client ID into the Network Options page for the Google Analytics Popular Posts.
 
 or:
 
- > ___For Single Sites:___ If you do not have a WordPress network install (or are not an administor of your network), enter the values from step one on the options page for the Google Analytics Popular Posts (Settings > Google Analytics Popular Posts).
+ > ___For Single Sites:___ If you do not have a WordPress network install (or are not an administor of your network), enter the Client Secret and Client ID on the options page for the Google Analytics Popular Posts (Settings > Google Analytics Popular Posts).
 
+ Note that the "Connect to Google Analytics" button will be greyed-out and inactive until you Save Changes after entering the Client Secret and Client ID. It will then turn blue and become active:
 
 ![Google Analytics Popular Posts plugin in the dashboard](img/ga-popular-posts-settings.png)
 
-Click the "Connect to Google Analytics" button and select a Google account to be associated with this application. After connecting the Google account you'll return to the Settings screen, where you'll enter the Google Profile ID for the website.
+Click the "Connect to Google Analytics" button and select a Google account to be associated with this application. After connecting the Google account you'll return to the Settings screen, where you'll enter the Google Property View ID for the website.
 
 ---
 
-### 3.  Connecting a Google Profile
+### 3.  Connecting a Google Property View ID
 
- * [Find the profile id](https://support.google.com/analytics/answer/1032385?hl=en-GB) that corresponds to the Google Analytics table tracking your site, and save it in Property View ID. This should be in the format `ga:xxxxxxx`
+ Find the View ID that corresponds to the Google Analytics table tracking your site, and save it in the Property View ID field. You can find the View ID in your Google Analytics account > Administration > View Settings: 
 
- ![Google Profile ID entered in the Google Analytics Popular Posts plugin settings](img/ga-popular-posts-settings-2.png)
+![Google Analytics Administration dashboard](img/analytics-admin-dashboard.png)
 
- 
+The View ID is a nine-digit number: 
 
- * Assuming steps one and two are valid a "connect" link should become available at the bottom of the page. Use this button to authorize a Google account with permissions to the Property View you are attempting to pull data from.
+![Google Analytics Administration View Settings](img/analytics-view-settings.png)
+
+Now go back to your **WordPress dashboard > Settings > GA Popular Posts** and enter the prefix `ga:` followed by your View ID. The result should be something like `ga:123456789`
+
+![Google Profile ID entered in the Google Analytics Popular Posts plugin settings](img/ga-popular-posts-settings-3.png)
+
+Click the **Save Changes** button and you are done setting up the GA Popular Posts plugin.
