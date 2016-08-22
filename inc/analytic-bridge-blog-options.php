@@ -345,7 +345,7 @@ function analyticbridge_setting_api_token_connect_button() {
 			?>
 				<a href="<?php echo $client->createAuthUrl() ?>"  class='google-button'>Connect to Google Analytics</a>
 				<p class="description">A user with read access to your organizations Google Analytics profile must connect their Google Account.</p>
-			<?
+			<?php
 		} else {
 
 			// Analytic Bridge is Authenticated.
