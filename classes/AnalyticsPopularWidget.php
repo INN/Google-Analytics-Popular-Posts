@@ -101,8 +101,21 @@ class AnalyticBridgePopularPostWidget extends WP_Widget {
 		$query_args = array(
 			'post__in' => $this->popPosts->ids,
 			'ignore_sticky_posts' => true,
-			'showposts' => $instance['num_posts'],
+			'showposts' => $instance['num_posts'] * 2,
 		);
+
+		/**
+		 * Filter the args that the Analytics Bridge Popular Posts widget uses to query for posts
+		 *
+		 * If you would like to ensure than an Analytics Popular Posts widget placed in a particular zone doesn't display certain types of posts, this is how.
+		 * When adding your filter, be sure to specify that the filter accepts 2 arguments:
+		 *
+		 *     add_filter('abp-widget-query-args', 'largo_filter_abp_query_vars', 10, 3);
+		 *                                                                            ^
+		 *
+		 * @link https://github.com/INN/Google-Analytics-Popular-Posts/issues/51
+		 */
+		$query_args = apply_filters( 'abp-widget-query-args', $query_args, $instance, $args );
 
 		// Get posts, sort them using the compare_popular_posts function defined elsewhere in this plugin.
 		$my_query = new WP_Query( $query_args );
