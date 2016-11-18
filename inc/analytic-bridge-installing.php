@@ -90,7 +90,7 @@ function _analyticbridge_plugin_init() {
 	");
 
 	// 2: Register a cron job.
-	wp_schedule_event( time(), '10m', 'analyticbridge_hourly_cron');
+	wp_schedule_event( time(), '60m', 'analyticbridge_hourly_cron');
 
 	update_option('analyticbridge_setting_popular_posts_halflife',14);
 }
