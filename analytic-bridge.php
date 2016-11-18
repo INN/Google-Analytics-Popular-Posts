@@ -55,6 +55,7 @@ function new_interval($interval) {
 	$interval['20m'] = array('interval' => 20*60, 'display' => 'Once every 20 minutes');
 	$interval['30m'] = array('interval' => 30*60, 'display' => 'Once every 30 minutes');
 	$interval['45m'] = array('interval' => 45*60, 'display' => 'Once every 45 minutes');
+	$interval['60m'] = array('interval' => 60*60, 'display' => 'Once every 60 minutes');
 
 	return $interval;
 
