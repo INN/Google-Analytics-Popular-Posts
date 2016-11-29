@@ -18,7 +18,7 @@ Using this scoring mechanism, the plugin generates a list of the most popular po
 
 == Installation ==
 
-1. Upload the plugin files to the `/wp-content/plugins/google-analytics-popular-posts` directory, or install the plugin through the WordPress plugins screen directly.
+1. Upload the plugin files to the `/wp-content/plugins/ga-popular-posts` directory, or install the plugin through the WordPress plugins screen directly.
 2. Activate the plugin through the 'Plugins' screen in WordPress
 3. Authenticate using your Google account via the Settings > GA Popular Posts page in the WordPress dashboard
 4. Review the settings, changing them as desired and click "Save changes"
