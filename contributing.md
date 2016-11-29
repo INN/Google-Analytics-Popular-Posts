@@ -13,7 +13,7 @@ We welcome contributions and suggestions to help us improve any of these documen
     - [@benlk](http://github.com/benlk) or [@rnagle](http://github.com/rnagle) (primary)
     - [@aschweigert](http://github.com/aschweigert) (secondary)
 
-Additionally, you can [create issues](https://github.com/INN/analytics-bridge/issues) on this repo to suggest changes or improvements.
+Additionally, you can [create issues](https://github.com/INN/Google-Analytics-Popular-Posts/issues) on this repo to suggest changes or improvements.
 
 And of course you can always email us: [nerds@inn.org](mailto:nerds@inn.org).
 
