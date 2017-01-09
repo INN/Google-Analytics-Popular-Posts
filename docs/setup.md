@@ -81,7 +81,9 @@ or:
 
 ![Google Analytics Popular Posts plugin in the dashboard](img/ga-popular-posts-settings.png)
 
-Click the "Connect to Google Analytics" button and select a Google account to be associated with this application. After connecting the Google account you'll return to the Settings screen, where you'll enter the Google Property View ID for the website.
+Click the "Connect to Google Analytics" button and select a Google account to be associated with this application. After connecting the Google account you'll return to the Settings screen.
+
+Press the "Save Changes" button, and move on to the next step:
 
 ---
 
