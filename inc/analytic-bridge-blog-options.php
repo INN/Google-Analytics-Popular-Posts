@@ -143,7 +143,7 @@ function analyticbridge_option_page_html() {
 			$client = analytic_bridge_google_client();
 			$service = new Google_Service_Oauth2($client);
 			$user = $service->userinfo->get();
-			echo __("Connected as ", 'gapp') . $user->getEmail();
+			echo __( "Connected as ", 'gapp' ) . $user->getEmail();
 		}
 
 		/* The user has asked us to run the cron. */

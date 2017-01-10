@@ -72,7 +72,6 @@ class AnalyticBridge {
 			// @todo we need better user-facing errors here if there is not a access token or a refresh token
 			// including instructions on how to revoke permissions in their google account to get a new refresh token when they sign in again, because google only doles those out on the first sign-in
 			if ( $e ) {
-				error_log( var_export( "You need a reset token, probably", false ) );
 				$e = array();
 				$e['message'] = 'No access token. Get a system administrator to authenticate the Google Analytics Popular Posts plugin.';
 			}
@@ -82,7 +81,7 @@ class AnalyticBridge {
 		// We want to authenticate and there is no client id or client secret.
 		// Client id and secret are needed to create the redirect button, to send us to Google oAuth page
 		// See https://developers.google.com/identity/protocols/OAuth2
-		elseif ( $auth && !( analyticbridge_client_id() && analyticbridge_client_secret() ) ) :
+		elseif ( $auth && ! ( analyticbridge_client_id() && analyticbridge_client_secret() ) ) :
 
 			if ( $e ) {
 				$e = array();
