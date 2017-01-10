@@ -143,7 +143,7 @@ function analyticbridge_option_page_html() {
 			$client = analytic_bridge_google_client();
 			$service = new Google_Service_Oauth2($client);
 			$user = $service->userinfo->get();
-			echo __("Connected as ", 'gapp'); . $user->getEmail();
+			echo __("Connected as ", 'gapp') . $user->getEmail();
 		}
 
 		/* The user has asked us to run the cron. */
@@ -290,7 +290,7 @@ function analyticbridge_register_options() {
 	// Add property field
 	add_settings_field(
 		'analyticbridge_setting_popular_posts_halflife',
-		'Post halflife',
+		'Post halflife (in days)',
 		'analyticbridge_setting_popular_posts_halflife_input',
 		'analytic-bridge',
 		'largo_anaytic_bridge_popular_posts_settings_section'
@@ -331,7 +331,8 @@ function largo_anaytic_bridge_account_settings_section_intro() {
  * @since v0.1
  */
 function largo_anaytic_bridge_popular_posts_settings_section_intro() {
-	_e( '<p>Enter the half life that popular post pageview weight should degrade by.</p>', 'gapp' );
+	_e( '<p>The post halflife is a measure of how long more-popular posts should remain in the popular posts list.</p>', 'gapp' );
+	_e( '<p>For example, with a half-life setting of 14 days, a post that is two weeks old and has 200 views in the last 24 hours will be as valuable as a post that is 1 day old and has 100 views in the last 24 hours.</p>', 'gapp' );
 }
 
 /**
@@ -446,5 +447,5 @@ function analyticbridge_setting_account_profile_id_input() {
  * @since v0.1
  */
 function analyticbridge_setting_popular_posts_halflife_input() {
-	echo '<input name="analyticbridge_setting_popular_posts_halflife" id="analyticbridge_setting_popular_posts_halflife" type="text" value="' . get_option('analyticbridge_setting_popular_posts_halflife') . '" class="regular-text" />';
+	echo '<input name="analyticbridge_setting_popular_posts_halflife" id="analyticbridge_setting_popular_posts_halflife" type="number" value="' . get_option('analyticbridge_setting_popular_posts_halflife') . '" class="regular-text" />';
 }
