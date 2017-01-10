@@ -132,7 +132,9 @@ function analyticbridge_option_page_html() {
 		/* Google has posted an authenticate code back to us. */
 		if ( isset($_GET['code']) ) {
 			// ignore this section as we don't have any way to properly display it
+			// If we're at the _GET['code'] part of the workflow, it's just noise
 			// @see analyticbridge_google_authenticate_code_post();
+
 		// No auth ticket loaded (yet).
 		} elseif ( ! get_option('analyticbridge_access_token') ) {
 			$client = analytic_bridge_google_client(false);
@@ -158,7 +160,7 @@ function analyticbridge_option_page_html() {
 			echo "</pre>";
 		}
 	} else {
-		echo "Enter your API details";
+		_e( "Enter your Google API client details in the settings fields at the top of this page.", 'gapp' );
 	}
 
 	echo '</div>'; // div.wrap
