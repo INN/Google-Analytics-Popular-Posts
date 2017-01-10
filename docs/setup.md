@@ -81,7 +81,15 @@ or:
 
 ![Google Analytics Popular Posts plugin in the dashboard](img/ga-popular-posts-settings.png)
 
-Click the "Connect to Google Analytics" button and select a Google account to be associated with this application. After connecting the Google account you'll return to the Settings screen.
+**STOP**. If you have already attempted to connect this client ID and client secret to your Google Account, or you see the application you created listed [in the list of apps connected to your account](https://support.google.com/accounts/answer/3466521?hl=en), you must remove the application's permission to access your account.
+
+![How to remove the permissions for an app in the Apps Connected To Your Account screen of the Google Settings](img/google-account-remove-permissions.png)
+
+Removing permission is necessary. If you do not remove permissions, Google will not give you Google Analytics Popular Posts install the `refresh_token` that is needed to complete the installation process.
+
+If you do not see the application you created listed in the list of apps connected to your account, proceed.
+
+In the Google Analytics Popular Posts settings screen, click the "Connect to Google Analytics" button and select a Google account to be associated with this application. After connecting the Google account you'll return to the Settings screen.
 
 Press the "Save Changes" button, and move on to the next step:
 
@@ -89,7 +97,7 @@ Press the "Save Changes" button, and move on to the next step:
 
 ### 3.  Connecting a Google Property View ID
 
- Find the View ID that corresponds to the Google Analytics table tracking your site, and save it in the Property View ID field. You can find the View ID in your Google Analytics account > Administration > View Settings: 
+ Find the View ID that corresponds to the Google Analytics table tracking your site, and save it in the Property View ID field. You can find the View ID in your Google Analytics account > Administration > View Settings:
 
 ![Google Analytics Administration dashboard](img/analytics-admin-dashboard.png)
 

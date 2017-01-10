@@ -4,8 +4,8 @@ Plugin Name: Google Analytics Popular Posts
 Description: Pull analytic data into your wordpress install.
 Author: inn_nerds
 Author URI: https://nerds.inn.org/
-Version: 0.1.1
-License: Copyright © 2015 INN
+Version: 0.1.2
+License: Copyright © 2015-2017 INN
 */
 
 // Prevent direct file access
