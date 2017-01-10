@@ -121,12 +121,17 @@ function analyticbridge_option_page_html() {
 	submit_button();
 	echo '</form>';
 
+
+	/*
+	 * from here down is the cron job kick-off button
+	 */
+
 	// check if there is a client id/secret defined.
 	if ( analyticbridge_client_id() && analyticbridge_client_secret() ) {
 
 		/* Google has posted an authenticate code back to us. */
 		if ( isset($_GET['code']) ) {
-			$client = analytic_bridge_authenticate_google_client($_GET['code']);
+			// ignore this section as we don't have any way to properly display it
 			// @see analyticbridge_google_authenticate_code_post();
 		// No auth ticket loaded (yet).
 		} elseif ( ! get_option('analyticbridge_access_token') ) {
@@ -168,11 +173,13 @@ function analyticbridge_option_page_html() {
 function analyticbridge_google_authenticate_code_post() {
 	if ( isset($_GET['code']) ) {
 		$client = analytic_bridge_authenticate_google_client($_GET['code']);
-		$redirect = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'];
-		header('Location: ' . filter_var($redirect, FILTER_SANITIZE_URL));
+		// get the admin url for the analytics bridge
+		$redirect = admin_url( 'options-general.php?page=analytic-bridge' );
+		wp_safe_redirect( filter_var($redirect, FILTER_SANITIZE_URL));
+		exit;
 	}
 }
-add_action( 'send_headers', 'analyticbridge_google_authenticate_code_post' );
+add_action( 'admin_init', 'analyticbridge_google_authenticate_code_post' );
 
 /**
  * Registers options for the plugin.

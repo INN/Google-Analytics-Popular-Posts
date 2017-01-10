@@ -130,6 +130,7 @@ function analyticbridge_option_page_html() {
 		/* Google has posted an authenticate code back to us. */
 		if ( isset($_GET['code']) ) :
 			$redirect = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'];
+			var_log( $redirect );
 			header('Location: ' . filter_var($redirect, FILTER_SANITIZE_URL));
 
 		// No auth ticket loaded (yet).
