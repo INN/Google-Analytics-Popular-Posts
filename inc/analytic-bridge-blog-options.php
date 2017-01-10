@@ -127,10 +127,10 @@ function analyticbridge_option_page_html() {
 		/* Google has posted an authenticate code back to us. */
 		if ( isset($_GET['code']) ) {
 			$client = analytic_bridge_authenticate_google_client($_GET['code']);
-			$redirect = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'];
-			header('Location: ' . filter_var($redirect, FILTER_SANITIZE_URL));
+			// @see analyticbridge_google_authenticate_code_post();
 		// No auth ticket loaded (yet).
 		} elseif ( !get_option('analyticbridge_access_token') ) {
+			$client = analytic_bridge_authenticate_google_client($_GET['code']);
 			$client = analytic_bridge_google_client(false);
 			echo "<a href='" . $client->createAuthUrl() . "'>Connect</a>";
 		} else {
@@ -160,6 +160,20 @@ function analyticbridge_option_page_html() {
 	echo '</div>'; // div.wrap
 
 }
+
+/**
+ * do header modification in actual header
+ * @since 0.1.2
+ * @link https://github.com/INN/Google-Analytics-Popular-Posts/issues/59
+ */
+function analyticbridge_google_authenticate_code_post() {
+	if ( isset($_GET['code']) ) {
+		$client = analytic_bridge_authenticate_google_client($_GET['code']);
+		$redirect = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'];
+		header('Location: ' . filter_var($redirect, FILTER_SANITIZE_URL));
+	}
+}
+add_action( 'send_headers', 'analyticbridge_google_authenticate_code_post' );
 
 /**
  * Registers options for the plugin.
@@ -339,17 +353,17 @@ function analyticbridge_setting_api_token_connect_button() {
 
 		if ( ! get_option( 'analyticbridge_access_token' ) ) {
 
-			// Analytic Bridge is Authenticated.
+			// Analytic Bridge is NOT authenticated.
 			$client = analytic_bridge_google_client(false);
 
 			?>
 				<a href="<?php echo $client->createAuthUrl() ?>"  class='google-button'>Connect to Google Analytics</a>
 				<p class="description">A user with read access to your organizations Google Analytics profile must connect their Google Account.</p>
 			<?php
+
 		} else {
 
 			// Analytic Bridge is Authenticated.
-			$client = analytic_bridge_google_client();
 			$client = analytic_bridge_google_client();
 			$service = new Google_Service_Oauth2($client);
 			$user = $service->userinfo->get();
