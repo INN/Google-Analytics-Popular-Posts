@@ -6,13 +6,14 @@
 
 Google Analytics Popular Posts is a WordPress plugin from the [Institute for Nonprofit News](http://inn.org). Its goal is to make Google Analytics easily querable from the WordPress environment aiding in post aggregation, article metrics and better editorial understanding.
 
-**This plugin is under active development.** Updating to new versions might require reactivating to rebuild database tables, as there is currently no upgrading framework.
+**This plugin is under active development.** Updating to new versions might require reactivating to rebuild database tables, as there is currently no upgrading framework. If you experience a problem with this plugin, please [file an issue on GitHub](https://github.com/INN/Google-Analytics-Popular-Posts/issues).
 
 ---
 
 ### Contents
  * __<big>[Setup Instructions](setup.md)</big>__ 
  * __<big>[Using the Widget](widget.md)</big>__ 
+ * __<big>[Troubleshooting](troubleshooting.md)</big>__ 
 
 ---
 

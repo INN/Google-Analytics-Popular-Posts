@@ -81,7 +81,7 @@ or:
 
 ![Google Analytics Popular Posts plugin in the dashboard](img/ga-popular-posts-settings.png)
 
-**STOP**. If you have already attempted to connect this client ID and client secret to you Google Account, or you see the application you created listed [in the list of apps connected to your account](https://support.google.com/accounts/answer/3466521?hl=en), you must remove the application's permission to access your account.
+**STOP**. If you have already attempted to connect this client ID and client secret to your Google Account, or you see the application you created listed [in the list of apps connected to your account](https://support.google.com/accounts/answer/3466521?hl=en), you must remove the application's permission to access your account.
 
 ![How to remove the permissions for an app in the Apps Connected To Your Account screen of the Google Settings](img/google-account-remove-permissions.png)
 
