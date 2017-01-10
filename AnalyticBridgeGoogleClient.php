@@ -59,16 +59,17 @@ class AnalyticBridge {
 	 *
 	 * @return Google_Client object on success, 'false' on failure.
 	 */
-	public function getClient($auth = true,&$e = null) {
+	public function getClient( $auth = true, &$e = null ) {
 
-		if($auth && $this->client && $this->clientAuthenticated) {
+		if( $auth && $this->client && $this->clientAuthenticated ) {
 			return $this->client;
 		}
 
-		// We want to authenticate and there is no auth ticket or refresh token.
-		if( $auth && !(get_option('analyticbridge_access_token') && get_option('analyticbridge_refresh_token')) ) :
+		// We want to authenticate and there is no ( auth ticket and refresh token )
+		// Both are needed, see https://developers.google.com/identity/protocols/OAuth2
+		if ( $auth && ! ( get_option( 'analyticbridge_access_token' ) && get_option( 'analyticbridge_refresh_token' ) ) ) :
 
-			if( $e ) {
+			if ( $e ) {
 				$e = array();
 				$e['message'] = 'No access token. Get a system administrator to authenticate the Google Analytics Popular Posts plugin.';
 			}
@@ -76,11 +77,13 @@ class AnalyticBridge {
 			return false;
 
 		// We want to authenticate and there is no client id or client secret.
-		elseif( $auth && !(analyticbridge_client_id() && analyticbridge_client_secret()) ) :
+		// Client id and secret are needed to create the redirect button, to send us to Google oAuth page
+		// See https://developers.google.com/identity/protocols/OAuth2
+		elseif ( $auth && !( analyticbridge_client_id() && analyticbridge_client_secret() ) ) :
 
-			if( $e ) {
+			if ( $e ) {
 				$e = array();
-				$e['message'] = 'No access token. Get a system administrator to authenticate the Google Analytics Popular Posts plugin.';
+				$e['message'] = 'No client id or client secret. Get a system administrator to authenticate the Google Analytics Popular Posts plugin.';
 			}
 
 			return false;
