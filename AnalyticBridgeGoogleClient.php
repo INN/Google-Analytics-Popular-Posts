@@ -69,7 +69,10 @@ class AnalyticBridge {
 		// Both are needed, see https://developers.google.com/identity/protocols/OAuth2
 		if ( $auth && ! ( get_option( 'analyticbridge_access_token' ) && get_option( 'analyticbridge_refresh_token' ) ) ) :
 
+			// @todo we need better user-facing errors here if there is not a access token or a refresh token
+			// including instructions on how to revoke permissions in their google account to get a new refresh token when they sign in again, because google only doles those out on the first sign-in
 			if ( $e ) {
+				error_log( var_export( "You need a reset token, probably", false ) );
 				$e = array();
 				$e['message'] = 'No access token. Get a system administrator to authenticate the Google Analytics Popular Posts plugin.';
 			}

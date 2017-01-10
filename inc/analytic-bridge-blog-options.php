@@ -169,8 +169,6 @@ function analyticbridge_google_authenticate_code_post() {
 	if ( isset($_GET['code']) ) {
 		$client = analytic_bridge_authenticate_google_client($_GET['code']);
 		$redirect = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'];
-			var_log( "REDIRECT IN inc/analytics-bridge-blog-options.php" );
-			var_log($redirect);
 		header('Location: ' . filter_var($redirect, FILTER_SANITIZE_URL));
 	}
 }
