@@ -9,7 +9,7 @@
  * Enqueue style for admin page.
  *
  */
-function analyticbridge_blog_options_admin_style($hook) {
+function analyticbridge_blog_options_admin_style( $hook ) {
 	if ( $hook == 'settings_page_analytic-bridge' ) {
 		wp_enqueue_style(
 			'analyticbridge_admin_style',
@@ -130,7 +130,7 @@ function analyticbridge_option_page_html() {
 	if ( analyticbridge_client_id() && analyticbridge_client_secret() ) {
 
 		/* Google has posted an authenticate code back to us. */
-		if ( isset($_GET['code']) ) {
+		if ( isset( $_GET['code'] ) ) {
 			// ignore this section as we don't have any way to properly display it
 			// If we're at the _GET['code'] part of the workflow, it's just noise
 			// @see analyticbridge_google_authenticate_code_post();
@@ -138,25 +138,29 @@ function analyticbridge_option_page_html() {
 		// No auth ticket loaded (yet).
 		} elseif ( ! get_option('analyticbridge_access_token') ) {
 			$client = analytic_bridge_google_client(false);
-			echo "<a href='" . $client->createAuthUrl() . "'>Connect</a>";
+			echo "<a href='" . $client->createAuthUrl() . "'>" . __( "Connect", 'gapp' ) . "</a>";
 		} else {
 			$client = analytic_bridge_google_client();
 			$service = new Google_Service_Oauth2($client);
 			$user = $service->userinfo->get();
-			echo "Connected as " . $user->getEmail();
+			echo __("Connected as ", 'gapp'); . $user->getEmail();
 		}
 
 		/* The user has asked us to run the cron. */
-		if ( isset($_GET['update']) ) {
+		if ( isset( $_GET['update'] ) ) {
 			echo "<h3>Running Update...</h3>";
 			echo "<pre>";
-				echo "Running cron...";
+				_e( "Running cron...", 'gapp' );
 				largo_anaylticbridge_cron(true);
 			echo "</pre>";
 		} else {
-			echo "<h3>Update Analytics</h3>";
+			_e( "<h3>Update Analytics</h3>", 'gapp' );;
 			echo "<pre>";
-				echo '<a href="' . admin_url('options-general.php?page=analytic-bridge&update'). '">Update analytics</a>';
+				printf(
+					'<a href="%1$s">%2$s</a>',
+					admin_url('options-general.php?page=analytic-bridge&update'),
+					__( 'Update analytics', 'gapp' )
+				);
 			echo "</pre>";
 		}
 	} else {
@@ -173,11 +177,11 @@ function analyticbridge_option_page_html() {
  * @link https://github.com/INN/Google-Analytics-Popular-Posts/issues/59
  */
 function analyticbridge_google_authenticate_code_post() {
-	if ( isset($_GET['code']) ) {
-		$client = analytic_bridge_authenticate_google_client($_GET['code']);
+	if ( isset( $_GET['code'] ) ) {
+		$client = analytic_bridge_authenticate_google_client( $_GET['code'] );
 		// get the admin url for the analytics bridge
 		$redirect = admin_url( 'options-general.php?page=analytic-bridge' );
-		wp_safe_redirect( filter_var($redirect, FILTER_SANITIZE_URL));
+		wp_safe_redirect( filter_var( $redirect, FILTER_SANITIZE_URL ) );
 		exit;
 	}
 }
@@ -296,7 +300,7 @@ function analyticbridge_register_options() {
 	register_setting( 'analytic-bridge', 'analyticbridge_setting_popular_posts_halflife' );
 
 }
-add_action('admin_init', 'analyticbridge_register_options');
+add_action( 'admin_init', 'analyticbridge_register_options' );
 
 /**
  * Intro text for our google api settings section.
@@ -305,10 +309,10 @@ add_action('admin_init', 'analyticbridge_register_options');
  */
 function largo_anaytic_bridge_api_settings_section_intro() {
 	if( !analyticbridge_using_network_api_tokens() ) {
-		echo '<p>Enter the client id and client secret from your google developer console.</p>';
-		echo '<p>Notes: ensure the <em>consent screen</em> has an email and product name defined, the <em>credentials screen</em> has a proper redirect uri defined and the analytic API is enabled on the <em>API</em> screen.';
+		_e( '<p>Enter the client id and client secret from your google developer console.</p>', 'gapp' );
+		_e( '<p>Notes: ensure the <em>consent screen</em> has an email and product name defined, the <em>credentials screen</em> has a proper redirect uri defined and the analytic API is enabled on the <em>API</em> screen.', 'gapp' );
 	} else {
-		echo '<em>API tokens already set by network.</em>';
+		_e( '<em>API tokens already set by network.</em>', 'gapp' );
 	}
 }
 
@@ -318,7 +322,7 @@ function largo_anaytic_bridge_api_settings_section_intro() {
  * @since v0.1
  */
 function largo_anaytic_bridge_account_settings_section_intro() {
-	echo '<p>Enter the property and profile that corresponds to this site.</p>';
+	_e( '<p>Enter the property and profile that corresponds to this site.</p>', 'gapp' );
 }
 
 /**
@@ -327,7 +331,7 @@ function largo_anaytic_bridge_account_settings_section_intro() {
  * @since v0.1
  */
 function largo_anaytic_bridge_popular_posts_settings_section_intro() {
-	echo '<p>Enter the half life that popular post pageview weight should degrade by.</p>';
+	_e( '<p>Enter the half life that popular post pageview weight should degrade by.</p>', 'gapp' );
 }
 
 /**
@@ -362,11 +366,12 @@ function analyticbridge_setting_api_token_connect_button() {
 		if ( ! get_option( 'analyticbridge_access_token' ) ) {
 
 			// Analytic Bridge is NOT authenticated.
-			$client = analytic_bridge_google_client(false);
+			// We still need it to create an authentication URL.
+			$client = analytic_bridge_google_client( false );
 
 			?>
-				<a href="<?php echo $client->createAuthUrl() ?>"  class='google-button'>Connect to Google Analytics</a>
-				<p class="description">A user with read access to your organizations Google Analytics profile must connect their Google Account.</p>
+				<a href="<?php echo $client->createAuthUrl() ?>"  class='google-button'><?php _e( 'Connect to Google Analytics', 'gapp' ); ?></a>
+				<p class="description"><?php _e( 'A user with read access to your organization\'s Google Analytics profile must connect their Google Account.', 'gapp' ); ?></p>
 			<?php
 
 		} else {
@@ -378,7 +383,7 @@ function analyticbridge_setting_api_token_connect_button() {
 			?>
 
 			<div class="google-chip">
-				<?php if( !empty($user->picture) ) : ?>
+				<?php if ( !empty( $user->picture ) ) : ?>
 				<span class="google-user-image">
 					<img src="<?php echo $user->picture ?>" />
 				</span>
@@ -390,23 +395,31 @@ function analyticbridge_setting_api_token_connect_button() {
 			<!-- todo: <p class="description">Disconnect this user.</p> -->
 			<?php
 
-			if ( get_option('analyticbridge_authenticated_user') ) {
-				$userdata = get_userdata(get_option('analyticbridge_authenticated_user'));
+			if ( get_option( 'analyticbridge_authenticated_user' ) ) {
+				$userdata = get_userdata( get_option( 'analyticbridge_authenticated_user' ) );
 				$username = $userdata->user_login;
 
-				$authenticated_date = get_option('analyticbridge_authenticated_date_gmt');
-				$authenticated_date = get_date_from_gmt($authenticated_date);
-				$authenticated_date = mysql2date('M d, Y',$authenticated_date);
+				$authenticated_date = get_option( 'analyticbridge_authenticated_date_gmt' );
+				$authenticated_date = get_date_from_gmt( $authenticated_date );
+				$authenticated_date = mysql2date( 'M d, Y', $authenticated_date );
 			?>
-			<p class="description">by WordPress user "<?php echo $username; ?>" on  <?php echo $authenticated_date ?></p>
+			<p class="description">
+				<?php
+					printf(
+						__( 'by WordPress user "%1$s" on %2$s', 'gapp' ),
+						$username,
+						$authenticated_date
+					);
+				?>
+			</p>
 			<?php
 			}
 		}
 
 	} else {
 		?>
-			<span class='google-button disabled'>Google Analytics not connected</span>
-			<p class="description">Enter a Client ID and Client Secret above before connecting Google Analytics.</p>
+			<span class='google-button disabled'><?php _e( 'Google Analytics not connected', 'gapp' ); ?></span>
+			<p class="description"><?php _e( 'You must enter a Google Client ID and Client Secret above, and press the "Save Changes" button, before you can connect Google Analytics.' , 'gapp' ); ?></p>
 		<?php
 	}
 
