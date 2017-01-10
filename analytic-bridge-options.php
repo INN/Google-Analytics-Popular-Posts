@@ -131,6 +131,8 @@ function analyticbridge_option_page_html() {
 		if ( isset($_GET['code']) ) :
 			$client = analytic_bridge_authenticate_google_client($_GET['code']);
 			$redirect = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'];
+			var_log( "REDIRECT IN analytics-bridge-options.php" );
+			var_log($redirect);
 			header('Location: ' . filter_var($redirect, FILTER_SANITIZE_URL));
 
 		// No auth ticket loaded (yet).
