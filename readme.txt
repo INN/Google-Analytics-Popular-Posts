@@ -50,7 +50,7 @@ To query this data yourself, find the corresponding page_id from the pages table
 == Changelog ==
 
 
-= 0.1.2=
+= 0.1.2 =
 
 - Improvements to the login flow leading to fewer bugs
 - Updated documentation after visual refreshes on Google.com
