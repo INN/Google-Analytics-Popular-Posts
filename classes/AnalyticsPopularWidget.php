@@ -101,7 +101,7 @@ class AnalyticBridgePopularPostWidget extends WP_Widget {
 		$query_args = array(
 			'post__in' => $this->popPosts->ids,
 			'ignore_sticky_posts' => true,
-			'showposts' => $instance['num_posts'] * 2,
+			'showposts' => $instance['num_posts'],
 		);
 
 		/**
