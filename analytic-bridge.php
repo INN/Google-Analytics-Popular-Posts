@@ -112,9 +112,22 @@ function largo_anaylticbridge_cron($verbose = false) {
 
 	$analytics = new Analytic_Bridge_Service($client);
 
-	query_and_save_analytics( $analytics, "today", $verbose );
-	query_and_save_analytics( $analytics, "yesterday", $verbose );
+    $offset = intval(get_option( 'analyticbridge_cron_offset', 0 ));
+  
+    if( $offset == 0 ) {
+      query_and_save_analytics( $analytics, "today", $verbose );
+      query_and_save_analytics( $analytics, "yesterday", $verbose );
+    } else {
+      $actual_offset = 2*intval($offset);
+      query_and_save_analytics( $analytics, $actual_offset."daysAgo", $verbose );
+      query_and_save_analytics( $analytics, ($actual_offset+1)."daysAgo", $verbose );
+    }
+  
 	purge_old_analytics();
+  
+    $offset++;
+    if( $offset > 45 ) $offset = 0;
+    update_option( 'analyticbridge_cron_offset', $offset );
 
 	if($verbose) echo("Google Analytics Popular Posts cron executed successfully\n");
 	if($verbose) echo("\nEnd analyticbridge_cron\n");
@@ -188,7 +201,10 @@ function query_and_save_analytics($analytics, $startdate, $verbose=false) {
 		// caching iterator contains hasNext() functionality.
 		$iter = new CachingIterator(new ArrayIterator($report->rows));
 
+        $count = 0;
 		foreach ($iter as $r) {
+            $count++;
+            
 			// $r[0] - pagePath
 			$gapath = $r[0];
 
@@ -224,6 +240,11 @@ function query_and_save_analytics($analytics, $startdate, $verbose=false) {
 				//
 
 			} else {
+        
+				if( $count > 1 ) {
+					$pagesql .= ", \n";
+					$metricsql .= ", \n";
+				}        
 
 				// Insert into our 'post' table the pagepath and related postid
 				// (if it doesn't exist).
@@ -260,10 +281,6 @@ function query_and_save_analytics($analytics, $startdate, $verbose=false) {
 
 					);
 
-				if($iter->hasNext()) {
-					$pagesql .= ", \n";
-					$metricsql .= ", \n";
-				}
 			}
 		}
 
@@ -293,7 +310,7 @@ function query_and_save_analytics($analytics, $startdate, $verbose=false) {
  */
 function purge_old_analytics() {
 	global $wpdb;
-	$SQL = "delete " . METRICS_TABLE . " from " . METRICS_TABLE . " where startdate < (curdate()  - interval 2 day);";
+	$SQL = "delete " . METRICS_TABLE . " from " . METRICS_TABLE . " where startdate < (curdate()  - interval 90 day);";
 	$wpdb->query($SQL);
 }
 
@@ -408,3 +425,49 @@ class Google_Service_Analytics_Generator extends Google_Service_Analytics {
 }
 
 include_once( plugin_dir_path( __FILE__ ) . 'classes/AnalyticBridgePopularPosts.php');
+
+
+
+
+
+function fv_ga_stats_get_csv( $type = 'postviews', $args ) {
+  if( $type != 'postviews' ) return false;
+    
+  $defaults = array( 'end' => false, 'days' => false, 'limit' => 3, 'post_id' => false, 'summarize' => '' );
+
+  $args = wp_parse_args( $args, $defaults );
+  
+  $where = '1=1 ';
+  if( $args['days'] > 0 ) {
+    $where .= " AND startdate > (curdate()  - interval ".esc_sql($args['days'])." day) ";
+  }
+  if( $args['post_id'] ) {
+    $where .= " AND r.post_id = ".intval($args['post_id']);
+  }
+
+  global $wpdb;  
+  $aStats = $wpdb->get_results( "select r.post_id,p.post_title as post_title,r.pagepath as post_permalink,sum(value) views from ".esc_sql(METRICS_TABLE)." as m join ".esc_sql(PAGES_TABLE)." as r on m.page_id = r.id join {$wpdb->posts} as p on r.post_id = p.ID where {$where} group by page_id order by views desc limit ".esc_sql($args['limit'])."", ARRAY_A );
+  if( $aStats ) {
+    foreach( $aStats AS $k => $v ) {
+      $aStats[$k]['post_permalink'] = home_url($v['post_permalink']);
+    }
+  }
+  return $aStats;
+}
+
+
+if( !function_exists('stats_get_csv') ) :
+  function stats_get_csv( $type = 'postviews', $args ) {
+    return fv_ga_stats_get_csv( $type = 'postviews', $args );
+  }
+endif;
+
+
+add_filter( 'option_jetpack_active_modules', 'fv_ga_jetpack_bridge_fix' );
+
+function fv_ga_jetpack_bridge_fix( $aModules ) {
+  foreach( $aModules AS $k => $v ) {
+    if( $v == 'stats' ) unset($aModules[$k]);
+  }
+  return $aModules;
+}

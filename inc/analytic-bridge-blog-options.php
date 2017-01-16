@@ -155,6 +155,38 @@ function analyticbridge_option_page_html() {
 			echo "</pre>";
 		} else {
 			_e( "<h3>Update Analytics</h3>", 'gapp' );;
+
+			echo "<p>Current cron offset: ".get_option( 'analyticbridge_cron_offset', 0 )."</p>";
+
+			$post_id_home = intval(get_option('page_on_front',0));
+
+			global $wpdb;
+			$aStats = $wpdb->get_results( "select startdate AS date,count(*) as count, sum(value) as views from ".esc_sql(METRICS_TABLE)." group by startdate" );
+			if( $aStats ) {
+				echo "<p>Current global stats:</p>";
+				echo "<table class='widefat'>\n";
+				echo "<tr><th>Date</th><th>Row count</th><th>Views</th></tr>\n";
+				foreach( $aStats AS $objRow ) {
+					echo "<tr><td>".date( 'Y-m-d', strtotime($objRow->date) )."</td><td>".$objRow->count."</td><td>".number_format($objRow->views)."</td></tr>\n";
+				}
+				echo "</table>\n";
+			}
+
+			foreach( array( 'this month' => 31, 'this week' => 7, 'today' => 2 ) AS $k => $days ) {
+				$tStart = microtime(true);
+				$aStats = fv_ga_stats_get_csv('postviews', array('days' => $days, 'limit' => 10 ) );
+				echo "<!--fv_ga_stats_get_csv time taken ".(microtime(true)-$tStart)."-->\n";
+				if( $aStats ) {
+					echo "<p>Top posts ".$k.":</p>";
+					echo "<table class='widefat'>\n";
+					echo "<tr><th>Post</th><th>Views</th></tr>\n";
+					foreach( $aStats AS $objRow ) {
+						echo "<tr><td><a href='".get_permalink($objRow['post_id'])."' target='_blank'>".get_the_title($objRow['post_id'])."</a></td><td>".number_format($objRow['views'])."</td></tr>\n";
+					}
+					echo "</table>\n";
+				}
+			}
+
 			echo "<pre>";
 				printf(
 					'<a href="%1$s">%2$s</a>',
