@@ -112,9 +112,22 @@ function largo_anaylticbridge_cron($verbose = false) {
 
 	$analytics = new Analytic_Bridge_Service($client);
 
-	query_and_save_analytics( $analytics, "today", $verbose );
-	query_and_save_analytics( $analytics, "yesterday", $verbose );
+    $offset = intval(get_option( 'analyticbridge_cron_offset', 0 ));
+  
+    if( $offset == 0 ) {
+      query_and_save_analytics( $analytics, "today", $verbose );
+      query_and_save_analytics( $analytics, "yesterday", $verbose );
+    } else {
+      $actual_offset = 2*intval($offset);
+      query_and_save_analytics( $analytics, $actual_offset."daysAgo", $verbose );
+      query_and_save_analytics( $analytics, ($actual_offset+1)."daysAgo", $verbose );
+    }
+  
 	purge_old_analytics();
+  
+    $offset++;
+    if( $offset > 45 ) $offset = 0;
+    update_option( 'analyticbridge_cron_offset', $offset );
 
 	if($verbose) echo("Google Analytics Popular Posts cron executed successfully\n");
 	if($verbose) echo("\nEnd analyticbridge_cron\n");
@@ -293,7 +306,7 @@ function query_and_save_analytics($analytics, $startdate, $verbose=false) {
  */
 function purge_old_analytics() {
 	global $wpdb;
-	$SQL = "delete " . METRICS_TABLE . " from " . METRICS_TABLE . " where startdate < (curdate()  - interval 2 day);";
+	$SQL = "delete " . METRICS_TABLE . " from " . METRICS_TABLE . " where startdate < (curdate()  - interval 90 day);";
 	$wpdb->query($SQL);
 }
 
