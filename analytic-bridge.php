@@ -293,7 +293,7 @@ function query_and_save_analytics($analytics, $startdate, $verbose=false) {
  */
 function purge_old_analytics() {
 	global $wpdb;
-	$SQL = "delete " . METRICS_TABLE . " from " . METRICS_TABLE . " where startdate < (curdate()  - interval 2 day);";
+	$SQL = "delete " . METRICS_TABLE . " from " . METRICS_TABLE . " where startdate < (curdate()  - interval ".intval(get_option('analyticbridge_setting_popular_stats_days', 2 ))." day);";
 	$wpdb->query($SQL);
 }
 
