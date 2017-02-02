@@ -93,6 +93,7 @@ function _analyticbridge_plugin_init() {
 	wp_schedule_event( time(), '10m', 'analyticbridge_hourly_cron');
 
 	update_option('analyticbridge_setting_popular_posts_halflife',14);
+	update_option('analyticbridge_setting_popular_stats_days',2);
 }
 
 /**

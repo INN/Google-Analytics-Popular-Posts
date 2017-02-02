@@ -295,9 +295,21 @@ function analyticbridge_register_options() {
 		'analytic-bridge',
 		'largo_anaytic_bridge_popular_posts_settings_section'
 	); // ($id, $title, $callback, $page, $section, $args)
-
+  
 	// Register our settings.
 	register_setting( 'analytic-bridge', 'analyticbridge_setting_popular_posts_halflife' );
+  
+	// Add property field
+	add_settings_field(
+		'analyticbridge_setting_popular_stats_days',
+		'Stats lifetime  (in days)',
+		'analyticbridge_setting_popular_stats_days_input',
+		'analytic-bridge',
+		'largo_anaytic_bridge_popular_posts_settings_section'
+	); // ($id, $title, $callback, $page, $section, $args)  
+
+	// Register our settings.
+	register_setting( 'analytic-bridge', 'analyticbridge_setting_popular_stats_days' );
 
 }
 add_action( 'admin_init', 'analyticbridge_register_options' );
@@ -448,4 +460,13 @@ function analyticbridge_setting_account_profile_id_input() {
  */
 function analyticbridge_setting_popular_posts_halflife_input() {
 	echo '<input name="analyticbridge_setting_popular_posts_halflife" id="analyticbridge_setting_popular_posts_halflife" type="number" value="' . get_option('analyticbridge_setting_popular_posts_halflife') . '" class="regular-text" />';
+}
+
+/**
+ * Prints input field for Popular Post stats lifetime.
+ *
+ * @since v0.1
+ */
+function analyticbridge_setting_popular_stats_days_input() {
+	echo '<input name="analyticbridge_setting_popular_stats_days" id="analyticbridge_setting_popular_stats_days" type="number" value="' . get_option('analyticbridge_setting_popular_stats_days', 2 ) . '" class="regular-text" />';
 }
