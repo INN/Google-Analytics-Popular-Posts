@@ -408,3 +408,47 @@ class Google_Service_Analytics_Generator extends Google_Service_Analytics {
 }
 
 include_once( plugin_dir_path( __FILE__ ) . 'classes/AnalyticBridgePopularPosts.php');
+
+
+
+function fv_ga_stats_get_csv( $type = 'postviews', $args ) {
+	if( $type != 'postviews' ) return false;
+
+	$defaults = array( 'end' => false, 'days' => false, 'limit' => 3, 'post_id' => false, 'summarize' => '' );
+
+	$args = wp_parse_args( $args, $defaults );
+
+	$where = '1=1 ';
+	if( $args['days'] > 0 ) {
+		$where .= " AND startdate > (curdate()  - interval ".esc_sql($args['days'])." day) ";
+	}
+	if( $args['post_id'] ) {
+		$where .= " AND r.post_id = ".intval($args['post_id']);
+	}
+
+	global $wpdb;
+	$aStats = $wpdb->get_results( "select r.post_id,p.post_title as post_title,r.pagepath as post_permalink,sum(value) views from ".esc_sql(METRICS_TABLE)." as m join ".esc_sql(PAGES_TABLE)." as r on m.page_id = r.id join {$wpdb->posts} as p on r.post_id = p.ID where {$where} group by page_id order by views desc limit ".esc_sql($args['limit'])."", ARRAY_A );
+	if( $aStats ) {
+		foreach( $aStats AS $k => $v ) {
+			$aStats[$k]['post_permalink'] = home_url($v['post_permalink']);
+		}
+	}
+	return $aStats;
+}
+
+
+if( !function_exists('stats_get_csv') ) :
+	function stats_get_csv( $type = 'postviews', $args ) {
+		return fv_ga_stats_get_csv( $type = 'postviews', $args );
+	}
+endif;
+
+
+add_filter( 'option_jetpack_active_modules', 'fv_ga_jetpack_bridge_fix' );
+
+function fv_ga_jetpack_bridge_fix( $aModules ) {
+	foreach( $aModules AS $k => $v ) {
+		if( $v == 'stats' ) unset($aModules[$k]);
+	}
+	return $aModules;
+}
