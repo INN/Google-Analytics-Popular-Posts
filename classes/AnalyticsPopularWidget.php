@@ -89,10 +89,16 @@ class AnalyticBridgePopularPostWidget extends WP_Widget {
 		$olul =  isset( $instance['olul'] ) ? $instance['olul'] : 'ul';
 
 		// Start the list
-		echo sprintf( '<%s class="count-%d">',
-			$olul,
-			$instance['num_posts']
-		);
+		if ( 'custom' !== $olul ) {
+			echo sprintf( '<%s class="count-%d">',
+				$olul,
+				$instance['num_posts']
+			);
+		} else {
+			echo sprintf( '<%s class="custom row">', esc_html( $olul ) );
+			$grid_l_class = 12/$instance['num_posts'];
+			$grid_s_class = ($instance['num_posts'])%2 === 0 ? 6 : '12' ;
+		}
 
 		$this->popPosts = new AnayticBridgePopularPosts();
 		$this->popPosts->size = $instance['num_posts'];
@@ -131,13 +137,19 @@ class AnalyticBridgePopularPostWidget extends WP_Widget {
 
 				// wrap the items in li's.
 				$classes = join( ' ', get_post_class() );
-				$output .= '<li class="' . $classes . '">';
+				if ( 'custom' === $olul ) {
+					ob_start();
+					require(plugin_dir_path( __DIR__ ) . 'template-parts/custom-item-tpl.php');
+					$output .= ob_get_clean();
+				} else {
+					$output .= '<li class="' . $classes . '">';
 
-				// the headline
-				$output .= '<h5><a href="' . get_permalink() . '">' . get_the_title() . '</a></h5>';
+					// the headline
+					$output .= '<h5><a href="' . get_permalink() . '">' . get_the_title() . '</a></h5>';
 
-				// close the item
-				$output .= '</li>';
+					// close the item
+					$output .= '</li>';
+				}
 			}
 
 			// print all of the items
@@ -151,10 +163,12 @@ class AnalyticBridgePopularPostWidget extends WP_Widget {
 		} // end more featured posts
 
 		// close the ul if we're just showing a list of headlines
-		if ( $olul == 'ul' ) {
+		if ( 'ul' === $olul ) {
 			echo '</ul>';
-		} else {
+		} elseif ( 'ol' === $olul ) {
 			echo '</ol>';
+		} else {
+			echo '</div>';
 		}
 
 		echo $after_widget;
@@ -206,6 +220,7 @@ class AnalyticBridgePopularPostWidget extends WP_Widget {
 			<select id="<?php echo $this->get_field_id( 'olul' ); ?>" name="<?php echo $this->get_field_name( 'olul' ); ?>" class="widefat">
 				<option <?php selected( $instance['olul'], 'ul' ); ?> value="ul"><?php _e( 'Unordered list', 'largo' ); ?></option>
 				<option <?php selected( $instance['olul'], 'ol' ); ?> value="ol"><?php _e( 'Ordered list', 'largo' ); ?></option>
+				<option <?php selected( $instance['olul'], 'custom' ); ?> value="custom"><?php _e( 'Custom template', 'largo' ); ?></option>
 			</select>
 		</p>
 
